@@ -19,7 +19,7 @@
 - **Live URLs:**
   - Guest Table: `https://smart-menu-nu.vercel.app/?table=4`
   - Staff / Admin Terminal: `https://smart-menu-nu.vercel.app/admin` (PINs: Manager `9999`, Kitchen `2222`, Waiter `1111`)
-- **Verification:** Neon DB re-seeded (28 items, 7 categories). `npm run build` passed with zero errors. Vercel auto-deploying via GitHub `main`. Autonomous UI testing via browser agent in-progress.
+- **Verification:** Neon DB re-seeded (28 items, 7 categories). `npm run build` passed with zero errors. Vercel auto-deployed via GitHub `main`. Autonomous UI testing via browser agent verified 100% complete (15/15 tests passed: ordering, ELQR payment simulation, Salyk.kg fiscal receipt, KDS status transitions, and menu management).
 
 ## 3. Architecture Invariants
 - **Vercel Serverless & Neon Pooler:** Production runtime executes over Neon PgBouncer pooler (`DATABASE_URL`) to avoid Lambda connection exhaustion.
