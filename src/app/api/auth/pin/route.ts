@@ -1,10 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateStaffByPinOnServer, createStaffToken } from '@/lib/serverAuth';
+import { getClientIp, checkRateLimit, RATE_LIMITS } from '@/lib/security/rateLimiter';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    const ip = getClientIp(req);
+    const rateCheck = checkRateLimit(`pin_auth:${ip}`, RATE_LIMITS.PIN_AUTH);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Слишком много попыток ввода PIN. Блокировка на ${rateCheck.retryAfterSeconds} сек.`,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rateCheck.retryAfterSeconds),
+          },
+        }
+      );
+    }
+
     const body = (await req.json()) as { pin?: string };
 
     if (!body || !body.pin || typeof body.pin !== 'string') {

@@ -2,7 +2,7 @@
 > Auto-maintained by AI Agent. Keep strictly under 180 lines. Use telegraphic English.
 
 ## 1. Stack & Commands
-- **Framework:** Next.js 16.3.3 (App Router), React 19.2.8, TypeScript 5, Tailwind CSS v4, Lucide React.
+- **Framework:** Next.js 16.3.3 (App Router with Turbopack), React 19.2.8, TypeScript 5, Tailwind CSS v4, Lucide React.
 - **ORM & DB:** Prisma 6.19.3, Neon PostgreSQL cloud database (`ep-floral-moon-bh015x46`).
 - **Cloud Hosting:** Vercel Production (`https://smart-menu-nu.vercel.app`).
 - **GitHub Repository:** `https://github.com/Nur-collab/smart-menu` (branch: `main`).
@@ -14,29 +14,35 @@
   - DB Seed: `npx tsx prisma/seed.ts`
 
 ## 2. Active Work State
-- **Current Status:** Senior Code Audit Fixes complete: Serverless async DB awaiting, Price tampering guard, In-memory FIFO caps, Server-side PIN & API guards, SSE decoupling.
-- **Security & Reliability:** All mutating routes (`/api/menu/*`, `/api/orders/[id]`, `/api/stoplist`) protected via `authorizeStaffRequest` HMAC tokens. `POST /api/orders` recalculates subtotal and options from Neon DB.
+- **Current Status:** 20-Year Veteran Principal Engineer Architecture & Security Invariants implemented.
+- **Enterprise Features:**
+  - Sliding-window IP rate limiting (`RATE_LIMITS.PIN_AUTH` 5 attempts/5min, `ORDER_CREATION` 30/5min, `WAITER_CALL` 10/5min).
+  - Timing-safe HMAC session authentication (`crypto.timingSafeEqual`).
+  - Strict runtime schema validation & boundary input sanitization (`validateOrderInput`, `validateWaiterCallInput`).
+  - Layered Clean Architecture: `OrderService` separates business validation and Neon DB queries from route controllers.
+  - OWASP security headers in `next.config.ts` (nosniff, SAMEORIGIN, X-XSS-Protection, Referrer-Policy).
+  - Health & diagnostics observability endpoint (`/api/health`).
 - **Live URLs:**
   - Guest Table: `https://smart-menu-nu.vercel.app/?table=4`
   - Staff / Admin Terminal: `https://smart-menu-nu.vercel.app/admin` (PINs: Manager `9999`, Kitchen `2222`, Waiter `1111`)
-- **Verification:** Unit and integration tests passed for async DB persistence, price tampering prevention, and auth guards. Full local `npm run build` compiled cleanly. Pushed to Vercel production.
+  - Health Diagnostics: `https://smart-menu-nu.vercel.app/api/health`
 
 ## 3. Architecture Invariants
 - **Vercel Serverless & Neon Pooler:** Production runtime executes over Neon PgBouncer pooler (`DATABASE_URL`). All DB writes in API handlers are strictly awaited before returning HTTP responses.
-- **Server-Side Price Integrity:** Server recalculates all cart item unit prices, modifiers, and final amounts against Neon DB records; client prices are never trusted.
-- **Server-Side Staff Auth Guard:** Mutating admin routes require valid signed HMAC session token (`aura_staff_token`) validated against role permissions.
+- **Timing-Safe Crypto & Anti-Brute-Force:** PIN auth is strictly rate-limited with HTTP 429 lockouts; tokens are verified in constant time via `crypto.timingSafeEqual`.
+- **Domain Services:** Route handlers act purely as HTTP adapters; all domain validation, DB queries, and pricing calculations reside in `src/services/`.
 - **Continuous Deployment (CI/CD):** Every commit pushed to `main` on GitHub triggers an automatic production build and deployment on Vercel.
 
 ## 4. Bug Graveyard
+- **[PIN-Brute-Force-Risk]** Unlimited 4-digit PIN attempts allowed -> Added IP-based sliding-window rate limiter (5 max attempts / 5 min).
+- **[Timing-Attack-Vulnerability]** Standard string comparison in HMAC validation -> Upgraded to `crypto.timingSafeEqual`.
 - **[Serverless-Unawaited-DB-Ops]** Floating promises in Lambda caused silent Neon drops on context freeze -> Converted store mutators to async and awaited in API handlers.
 - **[Price-Tampering-Vulnerability]** Client-forged prices accepted by `POST /api/orders` -> Enforced server-side DB recalculation and option validation.
 - **[Unbounded-In-Memory-Growth]** Orders/calls arrays grew without limit -> Added FIFO caps (100 orders, 50 calls/reviews, 200 txns).
-- **[Unprotected-Admin-API]** Mutating endpoints lacked auth -> Implemented `/api/auth/pin`, HMAC session tokens, and route guards.
-- **[SSE-Sound-Thrashing]** `useEffect` dependent on `isSoundEnabled` caused SSE reconnections -> Decoupled via `isSoundEnabledRef`.
 
 ## 5. Rolling Changelog (Max 5)
-- `2026-11-22` Adversarial code review audit completed: resolved 5 critical/high/medium issues (DB awaiting, price tampering, memory limits, PIN auth, SSE).
+- `2026-11-22` Principal Architecture upgrade: Rate limiting, Timing-Safe HMAC, Input schemas, OWASP headers, `OrderService`, `/api/health`.
+- `2026-11-22` Staff review audit complete: async DB writes, price tampering protection, in-memory FIFO limits, PIN auth.
 - `2026-11-22` Expanded catalog to 28 dishes across 7 categories (Bar/Cocktails, Steaks, Breakfasts, Specialty Coffee) and re-seeded Neon DB.
 - `2026-11-22` Option 3 verified: ELQR/MBANK/О!Деньги payments flow, Sandbox simulation, and Salyk.kg fiscal receipt generation.
 - `2026-11-22` Live Vercel production deployment completed at `https://smart-menu-nu.vercel.app`, GitHub CI/CD established.
-- `2026-11-22` Option 1 complete: Built Menu CRUD API, `MenuManager.tsx` UI, real-time `MENU_UPDATED` SSE sync, 8/8 tests passed.

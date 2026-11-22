@@ -79,7 +79,10 @@ export function verifyStaffToken(token: string): SessionTokenPayload | null {
       .update(base64Payload)
       .digest('base64url');
 
-    if (signature !== expectedSig) {
+    const sigBuf = Buffer.from(signature, 'utf-8');
+    const expBuf = Buffer.from(expectedSig, 'utf-8');
+
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
       return null;
     }
 

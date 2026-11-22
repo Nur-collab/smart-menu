@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllOrders, createOrder } from '@/lib/serverStore';
-import { Order, CartItem, SelectedOption } from '@/types/menu';
-import { isValidTableNumber } from '@/lib/tableAuth';
-import { prisma } from '@/lib/prisma';
+import { getAllOrders } from '@/lib/serverStore';
+import { getClientIp, checkRateLimit, RATE_LIMITS } from '@/lib/security/rateLimiter';
+import { validateOrderInput } from '@/lib/validation/schemas';
+import { OrderService } from '@/services/orderService';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,138 +13,33 @@ export async function GET(): Promise<NextResponse> {
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const body = (await req.json()) as Order;
-
-    if (
-      !body ||
-      typeof body.tableNumber !== 'number' ||
-      !isValidTableNumber(body.tableNumber) ||
-      !Array.isArray(body.items) ||
-      body.items.length === 0
-    ) {
+    const ip = getClientIp(req);
+    const rate = checkRateLimit(`order_create:${ip}`, RATE_LIMITS.ORDER_CREATION);
+    if (!rate.allowed) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Некорректный номер столика (допустимо от 1 до 50) или пустой состав заказа',
-        },
+        { success: false, error: `Превышен лимит создания заказов. Подождите ${rate.retryAfterSeconds} сек.` },
+        { status: 429, headers: { 'Retry-After': String(rate.retryAfterSeconds) } }
+      );
+    }
+
+    const rawBody = await req.json();
+    const validation = validateOrderInput(rawBody);
+    if (!validation.success || !validation.data) {
+      return NextResponse.json(
+        { success: false, error: validation.error || 'Некорректный формат заказа' },
         { status: 400 }
       );
     }
 
-    // --- СЕРВЕРНАЯ ВАЛИДАЦИЯ ЦЕН И СОСТАВА ЗАКАЗА (Server-Side Price Validation) ---
-    const itemIds = Array.from(new Set(body.items.map((i) => i.menuItem?.id).filter(Boolean)));
-    const dbItems = await prisma.menuItem.findMany({
-      where: { id: { in: itemIds } },
-      include: {
-        optionGroups: {
-          include: {
-            options: true,
-          },
-        },
-      },
-    });
-
-    const dbItemMap = new Map(dbItems.map((item) => [item.id, item]));
-
-    let calculatedSubtotal = 0;
-    const verifiedCartItems: CartItem[] = [];
-
-    for (const item of body.items) {
-      if (!item.menuItem || !item.menuItem.id) {
-        return NextResponse.json(
-          { success: false, error: 'В заказе обнаружена позиция без идентификатора блюда' },
-          { status: 400 }
-        );
-      }
-
-      const dbItem = dbItemMap.get(item.menuItem.id);
-      if (!dbItem) {
-        return NextResponse.json(
-          { success: false, error: `Блюдо #${item.menuItem.id} не найдено в меню заведения` },
-          { status: 400 }
-        );
-      }
-
-      if (!dbItem.isAvailable) {
-        return NextResponse.json(
-          { success: false, error: `Блюдо «${dbItem.name}» временно недоступно (в стоп-листе)` },
-          { status: 400 }
-        );
-      }
-
-      const quantity = Math.max(1, Math.min(50, Math.floor(Number(item.quantity) || 1)));
-
-      // Валидация выбранных опций/модификаторов по БД
-      let verifiedOptionsDelta = 0;
-      const verifiedSelectedOptions: SelectedOption[] = [];
-
-      if (Array.isArray(item.selectedOptions)) {
-        // Создаем карту доступных опций для этого блюда
-        const availableOptionsMap = new Map<
-          string,
-          { groupId: string; groupTitle: string; name: string; price: number }
-        >();
-        for (const group of dbItem.optionGroups) {
-          for (const opt of group.options) {
-            availableOptionsMap.set(opt.id, {
-              groupId: group.id,
-              groupTitle: group.title,
-              name: opt.name,
-              price: opt.price,
-            });
-          }
-        }
-
-        for (const selOpt of item.selectedOptions) {
-          const matchedOpt = availableOptionsMap.get(selOpt.optionId);
-          if (matchedOpt) {
-            verifiedOptionsDelta += matchedOpt.price;
-            verifiedSelectedOptions.push({
-              groupId: matchedOpt.groupId,
-              groupTitle: matchedOpt.groupTitle,
-              optionId: selOpt.optionId,
-              optionName: matchedOpt.name,
-              price: matchedOpt.price,
-            });
-          }
-        }
-      }
-
-      const verifiedUnitPrice = dbItem.price + verifiedOptionsDelta;
-      calculatedSubtotal += verifiedUnitPrice * quantity;
-
-      verifiedCartItems.push({
-        ...item,
-        quantity,
-        unitPrice: verifiedUnitPrice,
-        selectedOptions: verifiedSelectedOptions,
-      });
+    const result = await OrderService.verifyAndCreateOrder(validation.data);
+    if (!result.success || !result.order) {
+      return NextResponse.json(
+        { success: false, error: result.error || 'Ошибка создания заказа' },
+        { status: 400 }
+      );
     }
 
-    // Валидация чаевых и скидки бонусами
-    const safeTipAmount = Math.max(0, Math.floor(Number(body.tipAmount) || 0));
-    // Скидка не может превышать 30% от реальной суммы заказа
-    const maxAllowedDiscount = Math.round(calculatedSubtotal * 0.3);
-    const safeDiscountAmount = Math.max(
-      0,
-      Math.min(maxAllowedDiscount, Math.floor(Number(body.discountAmount) || 0))
-    );
-    const calculatedFinalAmount = Math.max(
-      0,
-      calculatedSubtotal - safeDiscountAmount + safeTipAmount
-    );
-
-    const safeOrder: Order = {
-      ...body,
-      items: verifiedCartItems,
-      totalAmount: calculatedSubtotal,
-      discountAmount: safeDiscountAmount,
-      tipAmount: safeTipAmount,
-      finalAmount: calculatedFinalAmount,
-    };
-
-    const savedOrder = await createOrder(safeOrder);
-    return NextResponse.json({ success: true, data: savedOrder }, { status: 201 });
+    return NextResponse.json({ success: true, data: result.order }, { status: 201 });
   } catch (error) {
     const details = error instanceof Error ? error.message : String(error);
     console.error('API /api/orders error:', error);
