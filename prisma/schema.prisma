@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  slug      String     @unique
+  iconName  String     @default("Utensils")
+  order     Int        @default(0)
+  items     MenuItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model MenuItem {
+  id                 String                @id @default(cuid())
+  categoryId         String
+  category           Category              @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name               String
+  description        String
+  price              Float
+  oldPrice           Float?
+  imageUrl           String
+  weight             String
+  calories           Int                   @default(0)
+  proteins           Float                 @default(0)
+  fats               Float                 @default(0)
+  carbs              Float                 @default(0)
+  allergens          String[]              @default([])
+  badges             String[]              @default([])
+  isAvailable        Boolean               @default(true)
+  cookingTimeMinutes Int                   @default(10)
+  weatherAffinity    String?
+  recommendedItemIds String[]              @default([])
+  optionGroups       MenuItemOptionGroup[]
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  @@index([categoryId])
+  @@index([isAvailable])
+}
+
+model MenuItemOptionGroup {
+  id         String           @id @default(cuid())
+  menuItemId String
+  menuItem   MenuItem         @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  title      String
+  required   Boolean          @default(false)
+  multiple   Boolean          @default(false)
+  options    MenuItemOption[]
+
+  @@index([menuItemId])
+}
+
+model MenuItemOption {
+  id      String              @id @default(cuid())
+  groupId String
+  group   MenuItemOptionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  name    String
+  price   Float               @default(0)
+
+  @@index([groupId])
+}
+
+model Order {
+  id             String   @id @default(cuid())
+  tableNumber    Int
+  totalAmount    Float
+  discountAmount Float    @default(0)
+  tipAmount      Float    @default(0)
+  finalAmount    Float
+  paymentMethod  String   @default("cash")
+  status         String   @default("pending") // pending, accepted, cooking, ready, served, paid, cancelled
+  guestComment   String?
+  items          Json     // Complete CartItem[] snapshot
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([tableNumber])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model WaiterCall {
+  id          String   @id @default(cuid())
+  tableNumber Int
+  reason      String   // bill, help, cutlery, clean
+  status      String   @default("pending") // pending, resolved
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tableNumber])
+  @@index([status])
+}
+
+model PaymentTransaction {
+  id            String    @id @default(cuid())
+  orderId       String
+  invoiceNumber String    @unique
+  tableNumber   Int
+  amount        Float
+  tipAmount     Float     @default(0)
+  provider      String    // elqr, mbank, odengi, card_to_waiter, cash, split
+  status        String    @default("pending") // pending, processing, paid, failed, expired
+  qrPayload     String?
+  deeplinks     Json?
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime
+  paidAt        DateTime?
+
+  @@index([orderId])
+  @@index([invoiceNumber])
+  @@index([status])
+}
+
+model GuestReview {
+  id               String   @id @default(cuid())
+  tableNumber      Int
+  rating           Int
+  sentiment        String   // positive, neutral, negative
+  tags             String[] @default([])
+  comment          String?
+  externalPlatform String?  // 2gis, google
+  bonusAwarded     Int      @default(0)
+  status           String   @default("pending") // pending, reviewed, rejected
+  createdAt        DateTime @default(now())
+
+  @@index([rating])
+  @@index([status])
+}
+
+model CafeSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
