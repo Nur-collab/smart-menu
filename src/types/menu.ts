@@ -12,6 +12,8 @@ export type WeatherType = 'cold' | 'hot' | 'rain' | 'sunny' | 'all';
 export interface Category {
   readonly id: string;
   readonly name: string;
+  readonly nameKg?: string;
+  readonly nameEn?: string;
   readonly slug: string;
   readonly iconName: string;
   readonly order: number;
@@ -20,12 +22,16 @@ export interface Category {
 export interface MenuItemOption {
   readonly id: string;
   readonly name: string;
+  readonly nameKg?: string;
+  readonly nameEn?: string;
   readonly price: number;
 }
 
 export interface MenuItemOptionGroup {
   readonly id: string;
   readonly title: string;
+  readonly titleKg?: string;
+  readonly titleEn?: string;
   readonly required: boolean;
   readonly multiple: boolean;
   readonly options: readonly MenuItemOption[];
@@ -35,7 +41,11 @@ export interface MenuItem {
   readonly id: string;
   readonly categoryId: string;
   readonly name: string;
+  readonly nameKg?: string;
+  readonly nameEn?: string;
   readonly description: string;
+  readonly descriptionKg?: string;
+  readonly descriptionEn?: string;
   readonly price: number;
   readonly oldPrice?: number;
   readonly imageUrl: string;

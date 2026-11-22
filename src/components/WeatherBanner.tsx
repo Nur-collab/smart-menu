@@ -3,6 +3,7 @@
 import React from 'react';
 import { useMenu } from '@/context/MenuContext';
 import { Sun, CloudRain, Wind, Plus, Flame } from 'lucide-react';
+import { getLocalizedName } from '@/lib/i18n';
 
 export function WeatherBanner(): React.JSX.Element | null {
   const {
@@ -14,6 +15,7 @@ export function WeatherBanner(): React.JSX.Element | null {
     setWeatherType,
     getItemPriceWithDiscount,
     t,
+    language,
   } = useMenu();
 
   // Ищем блюдо с привязкой к текущей погоде (солнце/дождь/прохлада)
@@ -26,6 +28,7 @@ export function WeatherBanner(): React.JSX.Element | null {
   }
 
   const priceInfo = getItemPriceWithDiscount(weatherDish);
+  const localizedDishName = getLocalizedName(weatherDish, language);
 
   const getWeatherTitle = (): string => {
     switch (weatherType) {
@@ -51,6 +54,9 @@ export function WeatherBanner(): React.JSX.Element | null {
     }
   };
 
+  const tryPrefix =
+    language === 'en' ? 'Try: ' : language === 'kg' ? 'Даамын татыңыз: ' : 'Попробуйте: ';
+
   return (
     <div className="mx-4 mt-3 max-w-4xl sm:mx-auto rounded-3xl bg-[#F4EBE2] border border-[#E5D7CA] p-4 shadow-[0_2px_12px_rgba(40,30,20,0.03)] relative overflow-hidden transition-all">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
@@ -69,9 +75,9 @@ export function WeatherBanner(): React.JSX.Element | null {
                 className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
                   weatherType === 'sunny' ? 'bg-[#24211D] text-white' : 'text-[#7E766D]'
                 }`}
-                title="Солнечно в Бишкеке (+26°C)"
+                title={language === 'en' ? 'Sunny in Bishkek (+26°C)' : language === 'kg' ? 'Бишкекте ачык күн (+26°C)' : 'Солнечно в Бишкеке (+26°C)'}
               >
-                ☀️ Солнце
+                {language === 'en' ? '☀️ Sun' : language === 'kg' ? '☀️ Күн' : '☀️ Солнце'}
               </button>
               <button
                 type="button"
@@ -79,9 +85,9 @@ export function WeatherBanner(): React.JSX.Element | null {
                 className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
                   weatherType === 'rain' ? 'bg-[#24211D] text-white' : 'text-[#7E766D]'
                 }`}
-                title="Дождь в Бишкеке (+15°C)"
+                title={language === 'en' ? 'Rainy in Bishkek (+15°C)' : language === 'kg' ? 'Бишкекте жамгыр (+15°C)' : 'Дождь в Бишкеке (+15°C)'}
               >
-                🌧️ Дождь
+                {language === 'en' ? '🌧️ Rain' : language === 'kg' ? '🌧️ Жамгыр' : '🌧️ Дождь'}
               </button>
               <button
                 type="button"
@@ -89,9 +95,9 @@ export function WeatherBanner(): React.JSX.Element | null {
                 className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
                   weatherType === 'cold' ? 'bg-[#24211D] text-white' : 'text-[#7E766D]'
                 }`}
-                title="Свежий горный бриз (+10°C)"
+                title={language === 'en' ? 'Mountain breeze (+10°C)' : language === 'kg' ? 'Тоодон соккон жел (+10°C)' : 'Свежий горный бриз (+10°C)'}
               >
-                🌬️ Бриз
+                {language === 'en' ? '🌬️ Breeze' : language === 'kg' ? '🌬️ Салкын' : '🌬️ Бриз'}
               </button>
             </div>
           </div>
@@ -99,7 +105,7 @@ export function WeatherBanner(): React.JSX.Element | null {
           <p className="text-[#4A433B] text-xs leading-relaxed">
             {getWeatherTitle()}{' '}
             <strong className="text-[#24211D] font-bold block sm:inline mt-0.5 sm:mt-0">
-              Попробуйте: {weatherDish.name}!
+              {tryPrefix}{localizedDishName}!
             </strong>
           </p>
 
@@ -113,7 +119,7 @@ export function WeatherBanner(): React.JSX.Element | null {
               </span>
             )}
             <span className="text-[10px] bg-[#E8DDD2] text-[#8C5E3A] px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5">
-              <Flame className="w-2.5 h-2.5 text-[#B86B3E]" /> Хит
+              <Flame className="w-2.5 h-2.5 text-[#B86B3E]" /> {t('badgeHit')}
             </span>
             {priceInfo.isHappyHoursDiscount && (
               <span className="text-[10px] bg-[#24211D] text-[#E39666] px-2 py-0.5 rounded-full font-bold">

@@ -19,6 +19,7 @@ export function LanguageSwitcher(): React.JSX.Element {
           <button
             key={lang}
             type="button"
+            data-testid={`lang-btn-${lang}`}
             onClick={() => setLanguage(lang)}
             className={`px-2 py-1 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
               isCurrent

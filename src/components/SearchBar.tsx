@@ -11,7 +11,7 @@ export function SearchBar(): React.JSX.Element {
   const filterPills: readonly { id: BadgeType | 'all'; label: string; icon?: React.ReactNode }[] = [
     { id: 'all', label: t('filterAll') },
     { id: 'hit', label: t('filterHit'), icon: <Flame className="w-3 h-3 text-[#B86B3E]" /> },
-    { id: 'chef_choice', label: 'Шеф ⭐', icon: <Sparkles className="w-3 h-3 text-[#8A5B94]" /> },
+    { id: 'chef_choice', label: t('filterChef'), icon: <Sparkles className="w-3 h-3 text-[#8A5B94]" /> },
     { id: 'vegan', label: t('filterVegetarian') },
     { id: 'spicy', label: t('filterSpicy') },
     { id: 'discount', label: t('filterDiscount') },

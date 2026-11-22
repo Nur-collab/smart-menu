@@ -174,16 +174,17 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
     isSoundEnabledRef.current = isSoundEnabled;
   }, [isSoundEnabled]);
 
-  // Мультиязычность
-  const [language, setLanguageState] = useState<Language>(() => {
+  // Мультиязычность (SSR-safe инициализация без гидратационных сбоев)
+  const [language, setLanguageState] = useState<Language>('ru');
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('aura_lang_preference') as Language;
       if (saved === 'ru' || saved === 'kg' || saved === 'en') {
-        return saved;
+        setLanguageState(saved);
       }
     }
-    return 'ru';
-  });
+  }, []);
 
   const setLanguage = useCallback((lang: Language): void => {
     setLanguageState(lang);

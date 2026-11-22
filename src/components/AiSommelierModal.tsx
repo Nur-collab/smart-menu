@@ -6,6 +6,7 @@ import { useMenu } from '@/context/MenuContext';
 import { Sparkles, Send, X, Bot, Plus, Check } from 'lucide-react';
 import { MenuItem } from '@/types/menu';
 import { AiChatMessage, AiRecommendResponse } from '@/types/ai';
+import { getLocalizedName } from '@/lib/i18n';
 
 let messageSeq = 1000;
 function createMessageId(prefix: string): string {
@@ -316,12 +317,13 @@ function SommelierDishRecommendationCard({
   getPrice,
   inCart,
 }: RecommendationCardProps): React.JSX.Element | null {
-  const { items } = useMenu();
+  const { items, language, cafeInfo, t } = useMenu();
   const dish = items.find((i) => i.id === itemId);
 
   if (!dish) return null;
 
   const priceInfo = getPrice(dish);
+  const dishTitle = getLocalizedName(dish, language);
 
   return (
     <div className="bg-white border border-[#EFE9E0] p-2.5 rounded-2xl shadow-sm flex items-center justify-between gap-3 hover:border-[#B86B3E]/40 transition-colors">
@@ -329,7 +331,7 @@ function SommelierDishRecommendationCard({
         <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[#F4EBE3] shrink-0 border border-[#E8DDD2]">
           <Image
             src={dish.imageUrl}
-            alt={dish.name}
+            alt={dishTitle}
             fill
             sizes="48px"
             className="object-cover"
@@ -337,20 +339,20 @@ function SommelierDishRecommendationCard({
         </div>
         <div className="min-w-0">
           <h4 className="text-xs font-bold text-[#24211D] truncate leading-tight">
-            {dish.name}
+            {dishTitle}
           </h4>
           <p className="text-[10px] text-[#7E766D] mt-0.5 flex items-center gap-1.5">
             <span>{dish.weight}</span>
             <span>•</span>
-            <span>{dish.calories} ккал</span>
+            <span>{dish.calories} {language === 'en' ? 'kcal' : 'ккал'}</span>
           </p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="text-xs font-black text-[#2F6B42]">
-              {priceInfo.currentPrice} сом
+              {priceInfo.currentPrice} {cafeInfo.currency}
             </span>
             {priceInfo.isHappyHoursDiscount && (
               <span className="text-[9px] text-[#A8A095] line-through">
-                {priceInfo.originalPrice} сом
+                {priceInfo.originalPrice} {cafeInfo.currency}
               </span>
             )}
           </div>
@@ -371,17 +373,17 @@ function SommelierDishRecommendationCard({
         {isAdded ? (
           <>
             <Check className="w-3 h-3 stroke-[3]" />
-            <span>Добавлено</span>
+            <span>{language === 'en' ? 'Added' : language === 'kg' ? 'Кошулду' : 'Добавлено'}</span>
           </>
         ) : inCart ? (
           <>
             <Check className="w-3 h-3" />
-            <span>В корзине</span>
+            <span>{t('inCart')}</span>
           </>
         ) : (
           <>
             <Plus className="w-3 h-3 stroke-[3]" />
-            <span>Добавить</span>
+            <span>{t('addToCart')}</span>
           </>
         )}
       </button>

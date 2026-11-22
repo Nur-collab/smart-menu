@@ -182,11 +182,11 @@ export function Header(): React.JSX.Element {
             <span>Wi-Fi: <strong className="text-[#24211D] font-medium">{cafeInfo.wifiName}</strong></span>
             {copiedWifi ? (
               <span className="text-[#2F6B42] text-[11px] font-semibold flex items-center gap-0.5 ml-1">
-                <Check className="w-3 h-3" /> Скопировано!
+                <Check className="w-3 h-3" /> {t('wifiCopied')}
               </span>
             ) : (
               <span className="text-[10px] text-[#A8A095] ml-1 underline decoration-dashed">
-                пароль
+                {t('wifiPassword')}
               </span>
             )}
           </button>
@@ -206,12 +206,12 @@ export function Header(): React.JSX.Element {
               {isHappyHoursActive ? (
                 <>
                   <Moon className="w-3 h-3 text-[#E39666]" />
-                  <span>Happy Hours 🌙 -20%</span>
+                  <span>{t('happyHoursOn')}</span>
                 </>
               ) : (
                 <>
                   <Sun className="w-3 h-3 text-[#B86B3E]" />
-                  <span>Happy Hours: Выкл</span>
+                  <span>{t('happyHoursOff')}</span>
                 </>
               )}
             </button>
@@ -223,7 +223,7 @@ export function Header(): React.JSX.Element {
               </span>
               <span className="hidden sm:inline text-[#D5CDC3]">•</span>
               <span className="hidden sm:inline text-[#7E766D]">
-                {cafeInfo.cashbackPercent}% кэшбек
+                {cafeInfo.cashbackPercent}% {t('cashbackNotice')}
               </span>
             </div>
           </div>

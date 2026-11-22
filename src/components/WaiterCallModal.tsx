@@ -5,49 +5,47 @@ import { useMenu } from '@/context/MenuContext';
 import { WaiterCallReason } from '@/types/menu';
 import { X, Receipt, HelpCircle, Utensils, Sparkles, CheckCircle2 } from 'lucide-react';
 
-interface CallOption {
-  readonly reason: WaiterCallReason;
-  readonly title: string;
-  readonly description: string;
-  readonly icon: React.ReactNode;
-}
-
-const CALL_OPTIONS: readonly CallOption[] = [
-  {
-    reason: 'bill',
-    title: 'Попросить счет',
-    description: 'Официант принесет терминал или сдачу',
-    icon: <Receipt className="w-5 h-5 text-[#B86B3E]" />,
-  },
-  {
-    reason: 'help',
-    title: 'Позвать официанта',
-    description: 'Нужна помощь по меню или совет',
-    icon: <HelpCircle className="w-5 h-5 text-[#356BB3]" />,
-  },
-  {
-    reason: 'cutlery',
-    title: 'Принести приборы / салфетки',
-    description: 'Вилки, ножи, палочки или влажные салфетки',
-    icon: <Utensils className="w-5 h-5 text-[#2F6B42]" />,
-  },
-  {
-    reason: 'clean',
-    title: 'Убрать со стола',
-    description: 'Освободить столик от пустой посуды',
-    icon: <Sparkles className="w-5 h-5 text-[#7A4B85]" />,
-  },
-];
-
 export function WaiterCallModal(): React.JSX.Element | null {
-  const { activeModal, setActiveModal, tableNumber, callWaiter } = useMenu();
+  const { activeModal, setActiveModal, tableNumber, callWaiter, t } = useMenu();
   const [calledSuccess, setCalledSuccess] = useState<string | null>(null);
 
   if (activeModal !== 'waiter') return null;
 
-  const handleSelectOption = (opt: CallOption): void => {
-    callWaiter(opt.reason);
-    setCalledSuccess(opt.title);
+  const callOptions: readonly {
+    reason: WaiterCallReason;
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+  }[] = [
+    {
+      reason: 'bill',
+      title: t('waiterReasonBill'),
+      description: t('waiterReasonBillDesc'),
+      icon: <Receipt className="w-5 h-5 text-[#B86B3E]" />,
+    },
+    {
+      reason: 'help',
+      title: t('waiterReasonHelp'),
+      description: t('waiterReasonHelpDesc'),
+      icon: <HelpCircle className="w-5 h-5 text-[#356BB3]" />,
+    },
+    {
+      reason: 'cutlery',
+      title: t('waiterReasonCutlery'),
+      description: t('waiterReasonCutleryDesc'),
+      icon: <Utensils className="w-5 h-5 text-[#2F6B42]" />,
+    },
+    {
+      reason: 'clean',
+      title: t('waiterReasonClean'),
+      description: t('waiterReasonCleanDesc'),
+      icon: <Sparkles className="w-5 h-5 text-[#7A4B85]" />,
+    },
+  ];
+
+  const handleSelectOption = (reason: WaiterCallReason, title: string): void => {
+    callWaiter(reason);
+    setCalledSuccess(title);
     setTimeout(() => {
       setCalledSuccess(null);
       setActiveModal(null);
@@ -68,8 +66,8 @@ export function WaiterCallModal(): React.JSX.Element | null {
         <button
           type="button"
           onClick={() => setActiveModal(null)}
-          className="absolute top-4 right-4 p-1.5 text-[#A8A095] hover:text-[#24211D] transition-colors"
-          title="Закрыть"
+          className="absolute top-4 right-4 p-1.5 text-[#A8A095] hover:text-[#24211D] transition-colors cursor-pointer"
+          title={t('close')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -77,34 +75,33 @@ export function WaiterCallModal(): React.JSX.Element | null {
         {calledSuccess ? (
           <div className="py-6 flex flex-col items-center justify-center text-center space-y-3">
             <CheckCircle2 className="w-14 h-14 text-[#2F6B42] animate-bounce" />
-            <h3 className="text-lg font-black text-[#24211D]">Вызов отправлен!</h3>
+            <h3 className="text-lg font-black text-[#24211D]">{t('waiterCallSuccess')}</h3>
             <p className="text-xs text-[#7E766D] max-w-xs leading-relaxed">
-              Запрос <strong className="text-[#B86B3E] font-bold">«{calledSuccess}»</strong>{' '}
-              передан персоналу. Официант уже спешит к столику{' '}
-              <strong className="text-[#24211D]">№{tableNumber}</strong>.
+              «<strong className="text-[#B86B3E] font-bold">{calledSuccess}</strong>» —{' '}
+              {t('waiterCallSuccessDesc')} ({t('tableNumberPrefix')}{tableNumber}).
             </p>
           </div>
         ) : (
           <>
             <div>
               <span className="text-[10px] uppercase font-bold text-[#B86B3E] tracking-wider block">
-                Сервис заведения
+                {t('waiterCallTitle')}
               </span>
               <h3 className="text-base font-black text-[#24211D] mt-0.5">
-                Вызов персонала к столику №{tableNumber}
+                {t('tableNumberPrefix')}{tableNumber}
               </h3>
               <p className="text-xs text-[#7E766D] mt-1">
-                Выберите, чем мы можем вам помочь прямо сейчас:
+                {t('waiterCallSubtitle')}
               </p>
             </div>
 
             <div className="space-y-2 pt-1">
-              {CALL_OPTIONS.map((opt) => (
+              {callOptions.map((opt) => (
                 <button
                   key={opt.reason}
                   type="button"
-                  onClick={() => handleSelectOption(opt)}
-                  className="w-full flex items-center gap-3 p-3.5 bg-white hover:bg-[#F4EBE3] border border-[#EFE9E0] hover:border-[#E8DDD2] rounded-2xl text-left transition-all active:scale-95 group shadow-[0_1px_4px_rgba(40,30,20,0.02)]"
+                  onClick={() => handleSelectOption(opt.reason, opt.title)}
+                  className="w-full flex items-center gap-3 p-3.5 bg-white hover:bg-[#F4EBE3] border border-[#EFE9E0] hover:border-[#E8DDD2] rounded-2xl text-left transition-all active:scale-95 group shadow-[0_1px_4px_rgba(40,30,20,0.02)] cursor-pointer"
                 >
                   <div className="p-2.5 rounded-xl bg-[#FBF9F5] border border-[#EFE9E0] group-hover:scale-105 transition-transform">
                     {opt.icon}

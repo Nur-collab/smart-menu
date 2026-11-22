@@ -37,7 +37,7 @@ export function PaymentModal({
   initialProvider = 'elqr',
   onPaymentSuccess,
 }: PaymentModalProps): React.JSX.Element | null {
-  const { cafeInfo, orders, openReviewModal } = useMenu();
+  const { cafeInfo, orders, openReviewModal, t, language } = useMenu();
 
   const [provider, setProvider] = useState<PaymentGatewayProvider>(initialProvider);
   const [transaction, setTransaction] = useState<PaymentTransaction | null>(null);
@@ -222,14 +222,18 @@ export function PaymentModal({
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#2F6B42] animate-pulse" />
             <span className="text-[10px] uppercase font-bold text-[#2F6B42] tracking-wider">
-              Безопасный эквайринг КР
+              {language === 'en' ? 'Secure Payment KG' : language === 'kg' ? 'Коопсуз төлөм КР' : 'Безопасный эквайринг КР'}
             </span>
           </div>
           <h3 className="text-lg font-black text-[#24211D] mt-0.5">
-            {isPaid ? 'Оплата успешно принята!' : 'Оплата заказа со столика'}
+            {isPaid
+              ? (language === 'en' ? 'Payment Successful!' : language === 'kg' ? 'Төлөм ийгиликтүү кабыл алынды!' : 'Оплата успешно принята!')
+              : (language === 'en' ? 'Order Payment' : language === 'kg' ? 'Буйрутманы төлөө' : 'Оплата заказа со столика')}
           </h3>
           <p className="text-xs text-[#7E766D] mt-0.5">
-            {order ? `Заказ #${order.id} • Стол №${order.tableNumber}` : `Заказ #${orderId}`}
+            {order
+              ? `${language === 'en' ? 'Order' : language === 'kg' ? 'Буйрутма' : 'Заказ'} #${order.id} • ${t('tableNumberPrefix')}${order.tableNumber}`
+              : `${language === 'en' ? 'Order' : language === 'kg' ? 'Буйрутма' : 'Заказ'} #${orderId}`}
           </p>
         </div>
 
@@ -241,28 +245,30 @@ export function PaymentModal({
             </div>
 
             <div>
-              <h4 className="text-base font-black text-[#24211D]">Деньги зачислены на счет</h4>
+              <h4 className="text-base font-black text-[#24211D]">
+                {language === 'en' ? 'Payment Confirmed' : language === 'kg' ? 'Акча эсепке түштү' : 'Деньги зачислены на счет'}
+              </h4>
               <p className="text-xs text-[#7E766D] mt-1">
-                Чек автоматически отправлен на фискализацию в ГНС КР и передан на кухню.
+                {language === 'en' ? 'Receipt fiscalized with State Tax Service KR and sent to kitchen.' : language === 'kg' ? 'Чек КР Салык кызматына фискалдаштырылып, ашканага берилди.' : 'Чек автоматически отправлен на фискализацию в ГНС КР и передан на кухню.'}
               </p>
             </div>
 
             <div className="bg-[#FBF9F5] rounded-xl p-3 text-xs border border-[#EFE9E0] space-y-1">
               <div className="flex justify-between text-[#7E766D]">
-                <span>Сумма к оплате:</span>
+                <span>{t('total')}:</span>
                 <span className="font-bold text-[#24211D]">
                   {order?.finalAmount ?? transaction?.amount} {cafeInfo.currency}
                 </span>
               </div>
               <div className="flex justify-between text-[#7E766D]">
-                <span>Номер инвойса:</span>
+                <span>{language === 'en' ? 'Invoice number' : language === 'kg' ? 'Инвойс номери' : 'Номер инвойса'}:</span>
                 <span className="font-mono text-[11px] text-[#24211D]">
                   {transaction?.invoiceNumber}
                 </span>
               </div>
               <div className="flex justify-between text-[#7E766D]">
-                <span>Статус в банке:</span>
-                <span className="font-bold text-[#2F6B42]">Подтвержден ✓</span>
+                <span>{language === 'en' ? 'Bank status' : language === 'kg' ? 'Банктагы абалы' : 'Статус в банке'}:</span>
+                <span className="font-bold text-[#2F6B42]">{language === 'en' ? 'Confirmed ✓' : language === 'kg' ? 'Ырасталды ✓' : 'Подтвержден ✓'}</span>
               </div>
             </div>
 
@@ -273,7 +279,7 @@ export function PaymentModal({
                 className="w-full bg-[#B86B3E] hover:bg-[#A3592E] text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Receipt className="w-4 h-4" />
-                <span>Посмотреть фискальный чек ЭККМ</span>
+                <span>{t('orderReceipt')}</span>
               </button>
 
               <button
@@ -285,7 +291,7 @@ export function PaymentModal({
                 className="w-full bg-[#EBF5ED] hover:bg-[#D8EEDE] text-[#2F6B42] font-bold text-xs py-2.5 px-4 rounded-xl border border-[#2F6B42]/30 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
                 <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
-                <span>Оценить визит и получить +50 бонусов 🌟</span>
+                <span>{language === 'en' ? 'Rate visit & earn +50 bonuses 🌟' : language === 'kg' ? 'Тейлөөнү баалап +50 бонус алыңыз 🌟' : 'Оценить визит и получить +50 бонусов 🌟'}</span>
               </button>
             </div>
           </div>
@@ -389,10 +395,10 @@ export function PaymentModal({
                     </div>
                     <p className="text-[11px] text-[#7E766D] mt-0.5">
                       {provider === 'elqr'
-                        ? 'Отсканируйте камерой любого банка КР (Optima, Bakai, Demir, MBANK)'
+                        ? (language === 'en' ? 'Scan with any Kyrgyz banking app (MBANK, Optima, Bakai, Demir)' : language === 'kg' ? 'КР каалаган банкынын тиркемеси менен сканерлеңиз' : 'Отсканируйте камерой любого банка КР (Optima, Bakai, Demir, MBANK)')
                         : provider === 'mbank'
-                        ? 'Отсканируйте сканером в приложении MBANK'
-                        : 'Отсканируйте в кошельке Мой О!'}
+                        ? (language === 'en' ? 'Scan with MBANK mobile app' : language === 'kg' ? 'MBANK тиркемеси менен сканерлеңиз' : 'Отсканируйте сканером в приложении MBANK')
+                        : (language === 'en' ? 'Scan in My O! wallet' : language === 'kg' ? 'Мой О! капчыгында сканерлеңиз' : 'Отсканируйте в кошельке Мой О!')}
                     </p>
                   </div>
                 </>
@@ -407,7 +413,7 @@ export function PaymentModal({
                   className="w-full bg-[#B86B3E] hover:bg-[#A3592E] text-white text-xs font-bold py-3 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
                 >
                   <Smartphone className="w-4 h-4" />
-                  <span>Открыть приложение MBANK</span>
+                  <span>{language === 'en' ? 'Open MBANK App' : language === 'kg' ? 'MBANK тиркемесин ачуу' : 'Открыть приложение MBANK'}</span>
                   <ExternalLink className="w-3.5 h-3.5 opacity-70" />
                 </a>
               )}
@@ -418,7 +424,7 @@ export function PaymentModal({
                   className="w-full bg-[#B84232] hover:bg-[#9E3527] text-white text-xs font-bold py-3 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
                 >
                   <Smartphone className="w-4 h-4" />
-                  <span>Открыть кошелек О!Деньги</span>
+                  <span>{language === 'en' ? 'Open O!Dengi Wallet' : language === 'kg' ? 'О!Деньги капчыгын ачуу' : 'Открыть кошелек О!Деньги'}</span>
                   <ExternalLink className="w-3.5 h-3.5 opacity-70" />
                 </a>
               )}
@@ -428,13 +434,13 @@ export function PaymentModal({
                 type="button"
                 onClick={handleSimulatePayment}
                 disabled={isSimulating || isLoading}
-                className="w-full bg-[#F4EBE3] hover:bg-[#E8DDD2] text-[#B86B3E] border border-[#E8DDD2] text-xs font-bold py-2.5 px-4 rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full bg-[#F4EBE3] hover:bg-[#E8DDD2] text-[#B86B3E] border border-[#E8DDD2] text-xs font-bold py-2.5 px-4 rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 <Zap className="w-3.5 h-3.5 fill-[#B86B3E]" />
                 <span>
                   {isSimulating
-                    ? 'Эмуляция ответа банка КР...'
-                    : '⚡ Симуляция успешной оплаты (Sandbox КР)'}
+                    ? (language === 'en' ? 'Simulating bank webhook...' : language === 'kg' ? 'Банктан жооп күтүлүүдө...' : 'Эмуляция ответа банка КР...')
+                    : (language === 'en' ? '⚡ Simulate Payment (KG Sandbox)' : language === 'kg' ? '⚡ Сыноо төлөмүн жүргүзүү (Sandbox)' : '⚡ Симуляция успешной оплаты (Sandbox КР)')}
                 </span>
                 <Sparkles className="w-3 h-3" />
               </button>
@@ -442,7 +448,7 @@ export function PaymentModal({
 
             <div className="text-[10px] text-center text-[#7E766D] flex items-center justify-center gap-1.5 pt-1">
               <ShieldCheck className="w-3.5 h-3.5 text-[#2F6B42]" />
-              <span>Шлюз защищен протоколом НБКР • Фискализация ЭККМ ГНС КР</span>
+              <span>{t('fiscalSalykNotice')}</span>
             </div>
           </div>
         )}

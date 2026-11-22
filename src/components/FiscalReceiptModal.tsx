@@ -27,7 +27,7 @@ export function FiscalReceiptModal({
   orderId,
   receiptData,
 }: FiscalReceiptModalProps): React.JSX.Element | null {
-  const { cafeInfo, setActiveModal } = useMenu();
+  const { cafeInfo, setActiveModal, t, language } = useMenu();
   const [fetchedReceipt, setFetchedReceipt] = useState<FiscalReceipt | null>(null);
 
   useEffect(() => {
@@ -98,10 +98,10 @@ export function FiscalReceiptModal({
         <div className="print:hidden">
           <div className="flex items-center gap-1.5 text-[#2F6B42] text-[10px] font-bold uppercase tracking-wider">
             <ShieldCheck className="w-4 h-4 text-[#2F6B42]" />
-            <span>ЭККМ Государственной налоговой службы КР</span>
+            <span>{t('fiscalSalykNotice')}</span>
           </div>
           <h3 className="text-base font-black text-[#24211D] mt-0.5">
-            Электронный фискальный чек
+            {t('fiscalReceiptTitle')}
           </h3>
         </div>
 
@@ -257,16 +257,16 @@ export function FiscalReceiptModal({
               <button
                 type="button"
                 onClick={handleGoToTracker}
-                className="w-full bg-[#B86B3E] hover:bg-[#A3592E] text-white text-xs font-bold py-3 px-4 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+                className="w-full bg-[#B86B3E] hover:bg-[#A3592E] text-white text-xs font-bold py-3 px-4 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>К статусу приготовления блюд</span>
+                <span>{language === 'en' ? 'Back to Order Tracker' : language === 'kg' ? 'Буйрутма абалына кайтуу' : 'К статусу приготовления блюд'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>
         ) : (
           <div className="text-center py-8 text-xs text-[#7E766D]">
-            Чек формируется после завершения оплаты заказа.
+            {language === 'en' ? 'Receipt is generated upon order payment completion.' : language === 'kg' ? 'Чек буйрутма төлөнгөндөн кийин чыгарылат.' : 'Чек формируется после завершения оплаты заказа.'}
           </div>
         )}
       </div>

@@ -11,6 +11,8 @@ export function FloatingCartBar(): React.JSX.Element | null {
     setActiveModal,
     activeOrder,
     cafeInfo,
+    t,
+    language,
   } = useMenu();
 
   if (cartItemsCount === 0 && !activeOrder) {
@@ -25,7 +27,7 @@ export function FloatingCartBar(): React.JSX.Element | null {
           <button
             type="button"
             onClick={() => setActiveModal('tracker')}
-            className="w-full bg-white/95 hover:bg-white border border-[#EFE9E0] rounded-2xl p-2.5 px-4 shadow-[0_4px_16px_rgba(40,30,20,0.06)] backdrop-blur-md flex items-center justify-between transition-all group"
+            className="w-full bg-white/95 hover:bg-white border border-[#EFE9E0] rounded-2xl p-2.5 px-4 shadow-[0_4px_16px_rgba(40,30,20,0.06)] backdrop-blur-md flex items-center justify-between transition-all group cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-[#F4EBE3] text-[#B86B3E] flex items-center justify-center">
@@ -33,17 +35,18 @@ export function FloatingCartBar(): React.JSX.Element | null {
               </div>
               <div className="text-left">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-[#24211D]">
-                  <span>Готовим заказ #{activeOrder.id}</span>
+                  <span>{t('orderCookingBanner')} #{activeOrder.id}</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#2F6B42] animate-pulse" />
                 </div>
                 <span className="text-[11px] text-[#B86B3E] font-medium flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> Статус: {activeOrder.status === 'cooking' ? 'На кухне' : 'Принят'}
+                  <Clock className="w-3 h-3" /> {language === 'en' ? 'Status' : 'Статус'}:{' '}
+                  {activeOrder.status === 'cooking' ? t('statusKitchen') : t('statusAccepted')}
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-1 text-xs font-bold text-[#7E766D] group-hover:text-[#24211D]">
-              <span>Отследить</span>
+              <span>{t('trackOrder')}</span>
               <ChevronRight className="w-4 h-4 text-[#A8A095] group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
@@ -54,7 +57,7 @@ export function FloatingCartBar(): React.JSX.Element | null {
           <button
             type="button"
             onClick={() => setActiveModal('cart')}
-            className="w-full bg-[#B86B3E] hover:bg-[#A3592E] active:scale-[0.98] text-white font-bold p-3.5 px-5 rounded-2xl shadow-[0_4px_20px_rgba(184,107,62,0.3)] flex items-center justify-between transition-all"
+            className="w-full bg-[#B86B3E] hover:bg-[#A3592E] active:scale-[0.98] text-white font-bold p-3.5 px-5 rounded-2xl shadow-[0_4px_20px_rgba(184,107,62,0.3)] flex items-center justify-between transition-all cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <div className="relative">
@@ -63,7 +66,7 @@ export function FloatingCartBar(): React.JSX.Element | null {
                   {cartItemsCount}
                 </span>
               </div>
-              <span className="text-sm font-extrabold">Оформить заказ</span>
+              <span className="text-sm font-extrabold">{t('checkoutOrder')}</span>
             </div>
 
             <div className="flex items-center gap-2 text-sm font-black">

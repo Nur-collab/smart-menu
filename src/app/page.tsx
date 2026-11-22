@@ -21,6 +21,7 @@ import { FloatingAiSommelierButton } from '@/components/FloatingAiSommelierButto
 import { ReviewModal } from '@/components/ReviewModal';
 import { ReviewPromptBanner } from '@/components/ReviewPromptBanner';
 import { Utensils, SearchX } from 'lucide-react';
+import { getLocalizedCategoryName } from '@/lib/i18n';
 
 function MenuCatalogContent(): React.JSX.Element {
   const {
@@ -35,15 +36,22 @@ function MenuCatalogContent(): React.JSX.Element {
     activeFiscalReceipt,
     openFiscalReceiptModal,
     t,
+    language,
   } = useMenu();
 
-  // Фильтрация позиций по поиску, категории и диетическим фильтрам
+  // Фильтрация позиций по мультиязычному поиску, категории и диетическим фильтрам
   const filteredItems = items.filter((item) => {
-    // 1. Поиск по тексту (название, описание, аллергены)
+    // 1. Поиск по тексту на любом из 3 языков (название, описание, аллергены)
     if (searchQuery.trim().length > 0) {
       const q = searchQuery.toLowerCase().trim();
-      const matchName = item.name.toLowerCase().includes(q);
-      const matchDesc = item.description.toLowerCase().includes(q);
+      const matchName =
+        item.name.toLowerCase().includes(q) ||
+        (item.nameKg && item.nameKg.toLowerCase().includes(q)) ||
+        (item.nameEn && item.nameEn.toLowerCase().includes(q));
+      const matchDesc =
+        item.description.toLowerCase().includes(q) ||
+        (item.descriptionKg && item.descriptionKg.toLowerCase().includes(q)) ||
+        (item.descriptionEn && item.descriptionEn.toLowerCase().includes(q));
       const matchAllergens = item.allergens.some((a) => a.toLowerCase().includes(q));
       if (!matchName && !matchDesc && !matchAllergens) {
         return false;
@@ -66,6 +74,9 @@ function MenuCatalogContent(): React.JSX.Element {
   });
 
   const currentCategoryObj = categories.find((c) => c.id === selectedCategory);
+  const currentCategoryName = currentCategoryObj
+    ? getLocalizedCategoryName(currentCategoryObj, language)
+    : '';
 
   return (
     <div className="min-h-screen bg-[#FBF9F5] text-[#24211D] flex flex-col font-sans pb-32">
@@ -87,10 +98,10 @@ function MenuCatalogContent(): React.JSX.Element {
           <div className="mb-3.5 flex items-center justify-between">
             <h2 className="text-base font-black text-[#24211D] tracking-tight flex items-center gap-2">
               <Utensils className="w-4 h-4 text-[#B86B3E]" />
-              <span>{currentCategoryObj.name}</span>
+              <span>{currentCategoryName}</span>
             </h2>
             <span className="text-xs text-[#8C7A6B] font-medium">
-              {filteredItems.length} позиций
+              {filteredItems.length} {t('itemsCount')}
             </span>
           </div>
         )}

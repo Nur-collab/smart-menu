@@ -44,7 +44,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   orderId,
   initialRating = 5,
 }) => {
-  const { tableNumber, addBonusPoints } = useMenu();
+  const { tableNumber, addBonusPoints, language, t } = useMenu();
   const [rating, setRating] = useState<ReviewRating>(initialRating);
   const [selectedTags, setSelectedTags] = useState<readonly string[]>([]);
   const [comment, setComment] = useState<string>('');
@@ -210,7 +210,9 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             {/* Быстрые теги впечатлений */}
             <div>
               <label className="block text-xs font-semibold text-[#57534E] mb-2">
-                {isPositive ? 'Что понравилось больше всего?' : 'Что нам нужно улучшить?'}
+                {isPositive
+                  ? (language === 'en' ? 'What did you like the most?' : language === 'kg' ? 'Эмне көбүрөөк жакты?' : 'Что понравилось больше всего?')
+                  : (language === 'en' ? 'What can we improve?' : language === 'kg' ? 'Эмнени жакшыртышыбыз керек?' : 'Что нам нужно улучшить?')}
               </label>
               <div className="flex flex-wrap gap-2">
                 {(isPositive ? POSITIVE_FEEDBACK_TAGS : CRITICAL_FEEDBACK_TAGS).map((tag) => {
@@ -238,7 +240,9 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             {/* Поле комментария */}
             <div>
               <label className="block text-xs font-semibold text-[#57534E] mb-1.5">
-                {isPositive ? 'Ваш комментарий (по желанию):' : 'Опишите ситуацию подробнее:'}
+                {isPositive
+                  ? (language === 'en' ? 'Your feedback (optional):' : language === 'kg' ? 'Сиздин пикириңиз (кааласаңыз):' : 'Ваш комментарий (по желанию):')
+                  : (language === 'en' ? 'Please describe what happened:' : language === 'kg' ? 'Абалды кененирээк жазып бериңиз:' : 'Опишите ситуацию подробнее:')}
               </label>
               <textarea
                 value={comment}
@@ -246,8 +250,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                 rows={3}
                 placeholder={
                   isPositive
-                    ? 'Например: очень понравился куурдак и свежая выпечка...'
-                    : 'Пожалуйста, расскажите, что пошло не так...'
+                    ? (language === 'en' ? 'E.g.: really loved the ribeye steak and fresh pastries...' : language === 'kg' ? 'Мисалы: стейк жана жаңы таттуулар абдан жакты...' : 'Например: очень понравился стейк и свежая выпечка...')
+                    : (language === 'en' ? 'Please share details so we can assist...' : language === 'kg' ? 'Сураныч, эмне туура эмес болгонун жазыңыз...' : 'Пожалуйста, расскажите, что пошло не так...')
                 }
                 className="w-full text-xs p-3 rounded-xl border border-stone-200 bg-white text-[#24211D] placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
@@ -365,7 +369,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               onClick={onClose}
               className="px-6 py-2.5 rounded-xl bg-[#24211D] hover:bg-black text-white text-xs font-bold transition-all cursor-pointer"
             >
-              Вернуться в меню
+              {t('backToHall')}
             </button>
           </div>
         )}

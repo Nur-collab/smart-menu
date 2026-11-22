@@ -3,6 +3,7 @@
 import React from 'react';
 import { useMenu } from '@/context/MenuContext';
 import { Sparkles, Egg, Coffee, UtensilsCrossed, Cake, Salad, GlassWater, LucideIcon } from 'lucide-react';
+import { getLocalizedCategoryName } from '@/lib/i18n';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Sparkles,
@@ -15,7 +16,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 export function CategoryNav(): React.JSX.Element {
-  const { categories, selectedCategory, setSelectedCategory, items, stopList } = useMenu();
+  const { categories, selectedCategory, setSelectedCategory, items, stopList, language } = useMenu();
 
   return (
     <div className="sticky top-[105px] sm:top-[97px] z-20 bg-[#FBF9F5]/90 backdrop-blur-md py-2 px-4 border-b border-[#EFE9E0]">
@@ -26,6 +27,7 @@ export function CategoryNav(): React.JSX.Element {
           const availableCount = items.filter(
             (i) => i.categoryId === cat.id && !stopList.has(i.id)
           ).length;
+          const categoryTitle = getLocalizedCategoryName(cat, language);
 
           return (
             <button
@@ -39,7 +41,7 @@ export function CategoryNav(): React.JSX.Element {
               }`}
             >
               <IconComponent className={`w-3.5 h-3.5 ${isSelected ? 'text-[#E8DDD2]' : 'text-[#A8A095]'}`} />
-              <span>{cat.name}</span>
+              <span>{categoryTitle}</span>
               <span
                 className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
                   isSelected ? 'bg-white/20 text-[#FBF9F5]' : 'bg-[#F4EBE3] text-[#7E766D]'

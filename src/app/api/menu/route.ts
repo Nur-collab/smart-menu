@@ -29,45 +29,71 @@ export async function GET(): Promise<NextResponse> {
       });
 
       if (dbCategories.length > 0 && dbMenuItems.length > 0) {
-        const mappedCategories: Category[] = dbCategories.map((c) => ({
-          id: c.id,
-          name: c.name,
-          slug: c.slug,
-          iconName: c.iconName,
-          order: c.order,
-        }));
+        const mappedCategories: Category[] = dbCategories.map((c) => {
+          const catMock = CATEGORIES.find((mc) => mc.id === c.id || mc.slug === c.slug);
+          return {
+            id: c.id,
+            name: c.name,
+            nameKg: catMock?.nameKg,
+            nameEn: catMock?.nameEn,
+            slug: c.slug,
+            iconName: c.iconName,
+            order: c.order,
+          };
+        });
 
-        const mappedItems: MenuItem[] = dbMenuItems.map((item) => ({
-          id: item.id,
-          categoryId: item.categoryId,
-          name: item.name,
-          description: item.description,
-          price: item.price,
-          oldPrice: item.oldPrice ?? undefined,
-          imageUrl: item.imageUrl,
-          weight: item.weight,
-          calories: item.calories,
-          proteins: item.proteins,
-          fats: item.fats,
-          carbs: item.carbs,
-          allergens: item.allergens,
-          badges: item.badges as MenuItem['badges'],
-          isAvailable: item.isAvailable && !stopList.has(item.id),
-          cookingTimeMinutes: item.cookingTimeMinutes,
-          weatherAffinity: (item.weatherAffinity as MenuItem['weatherAffinity']) ?? undefined,
-          recommendedItemIds: item.recommendedItemIds,
-          optionGroups: item.optionGroups.map((g) => ({
-            id: g.id,
-            title: g.title,
-            required: g.required,
-            multiple: g.multiple,
-            options: g.options.map((opt) => ({
-              id: opt.id,
-              name: opt.name,
-              price: opt.price,
-            })),
-          })),
-        }));
+        const mappedItems: MenuItem[] = dbMenuItems.map((item) => {
+          const mockItem = MENU_ITEMS.find((m) => m.id === item.id || m.name === item.name);
+          return {
+            id: item.id,
+            categoryId: item.categoryId,
+            name: item.name,
+            nameKg: mockItem?.nameKg,
+            nameEn: mockItem?.nameEn,
+            description: item.description,
+            descriptionKg: mockItem?.descriptionKg,
+            descriptionEn: mockItem?.descriptionEn,
+            price: item.price,
+            oldPrice: item.oldPrice ?? undefined,
+            imageUrl: item.imageUrl,
+            weight: item.weight,
+            calories: item.calories,
+            proteins: item.proteins,
+            fats: item.fats,
+            carbs: item.carbs,
+            allergens: item.allergens,
+            badges: item.badges as MenuItem['badges'],
+            isAvailable: item.isAvailable && !stopList.has(item.id),
+            cookingTimeMinutes: item.cookingTimeMinutes,
+            weatherAffinity: (item.weatherAffinity as MenuItem['weatherAffinity']) ?? undefined,
+            recommendedItemIds: item.recommendedItemIds,
+            optionGroups: item.optionGroups.map((g) => {
+              const mockGroup = mockItem?.optionGroups?.find(
+                (mg) => mg.id === g.id || mg.title === g.title
+              );
+              return {
+                id: g.id,
+                title: g.title,
+                titleKg: mockGroup?.titleKg,
+                titleEn: mockGroup?.titleEn,
+                required: g.required,
+                multiple: g.multiple,
+                options: g.options.map((opt) => {
+                  const mockOpt = mockGroup?.options.find(
+                    (mo) => mo.id === opt.id || mo.name === opt.name
+                  );
+                  return {
+                    id: opt.id,
+                    name: opt.name,
+                    nameKg: mockOpt?.nameKg,
+                    nameEn: mockOpt?.nameEn,
+                    price: opt.price,
+                  };
+                }),
+              };
+            }),
+          };
+        });
 
         const settings = await prisma.cafeSetting.findMany();
         const settingsMap = new Map(settings.map((s) => [s.key, s.value]));
