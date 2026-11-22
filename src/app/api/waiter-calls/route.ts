@@ -26,7 +26,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const newCall = createWaiterCall(body.tableNumber, body.reason);
+    const newCall = await createWaiterCall(body.tableNumber, body.reason);
     return NextResponse.json({ success: true, data: newCall }, { status: 201 });
   } catch {
     return NextResponse.json(

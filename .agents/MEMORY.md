@@ -14,27 +14,29 @@
   - DB Seed: `npx tsx prisma/seed.ts`
 
 ## 2. Active Work State
-- **Current Status:** Option 3 (Payment Gateways: ELQR / MBANK / О!Деньги / Split-check) + Expanded 28-dish authentic menu across 7 categories seeded into Neon PostgreSQL.
-- **Menu Scope:** 7 categories (Сезонное, Завтраки, Горячее & Стейки, Салаты & Боулы, Specialty Кофе, Бар & Напитки, Десерты & Выпечка) with 28 detailed dishes, KBJU, allergens, badges, and option groups.
+- **Current Status:** Senior Code Audit Fixes complete: Serverless async DB awaiting, Price tampering guard, In-memory FIFO caps, Server-side PIN & API guards, SSE decoupling.
+- **Security & Reliability:** All mutating routes (`/api/menu/*`, `/api/orders/[id]`, `/api/stoplist`) protected via `authorizeStaffRequest` HMAC tokens. `POST /api/orders` recalculates subtotal and options from Neon DB.
 - **Live URLs:**
   - Guest Table: `https://smart-menu-nu.vercel.app/?table=4`
   - Staff / Admin Terminal: `https://smart-menu-nu.vercel.app/admin` (PINs: Manager `9999`, Kitchen `2222`, Waiter `1111`)
-- **Verification:** Neon DB re-seeded (28 items, 7 categories). `npm run build` passed with zero errors. Vercel auto-deployed via GitHub `main`. Autonomous UI testing via browser agent verified 100% complete (15/15 tests passed: ordering, ELQR payment simulation, Salyk.kg fiscal receipt, KDS status transitions, and menu management).
+- **Verification:** Unit and integration tests passed for async DB persistence, price tampering prevention, and auth guards. Full local `npm run build` compiled cleanly. Pushed to Vercel production.
 
 ## 3. Architecture Invariants
-- **Vercel Serverless & Neon Pooler:** Production runtime executes over Neon PgBouncer pooler (`DATABASE_URL`) to avoid Lambda connection exhaustion.
-- **Real-Time Menu Sync:** Any mutation in `/api/menu` (POST/PATCH/DELETE) triggers `broadcastEvent({ type: 'MENU_UPDATED' })` over SSE.
+- **Vercel Serverless & Neon Pooler:** Production runtime executes over Neon PgBouncer pooler (`DATABASE_URL`). All DB writes in API handlers are strictly awaited before returning HTTP responses.
+- **Server-Side Price Integrity:** Server recalculates all cart item unit prices, modifiers, and final amounts against Neon DB records; client prices are never trusted.
+- **Server-Side Staff Auth Guard:** Mutating admin routes require valid signed HMAC session token (`aura_staff_token`) validated against role permissions.
 - **Continuous Deployment (CI/CD):** Every commit pushed to `main` on GitHub triggers an automatic production build and deployment on Vercel.
-- **Payment & Fiscalization Invariant:** Checkout routes to `PaymentModal` for ELQR/MBANK/О!Деньги, verifies via `/api/payments/[id]/status` or Sandbox simulation, generates Salyk.kg compliant `FiscalReceipt`.
 
 ## 4. Bug Graveyard
-- **[Windows-Query-Engine-EPERM]** `prisma generate` failed when background server held `query_engine.node` lock -> Killed background task before build.
-- **[Vercel-Build-Prisma-Generate]** Vercel build failed if Prisma Client was missing -> Configured `"build": "prisma generate && next build"` in `package.json`.
-- **[Windows-Symlink-EPERM]** `vercel deploy --temporary` failed locally -> Successfully migrated to GitHub Git integration and Vercel Cloud Build.
+- **[Serverless-Unawaited-DB-Ops]** Floating promises in Lambda caused silent Neon drops on context freeze -> Converted store mutators to async and awaited in API handlers.
+- **[Price-Tampering-Vulnerability]** Client-forged prices accepted by `POST /api/orders` -> Enforced server-side DB recalculation and option validation.
+- **[Unbounded-In-Memory-Growth]** Orders/calls arrays grew without limit -> Added FIFO caps (100 orders, 50 calls/reviews, 200 txns).
+- **[Unprotected-Admin-API]** Mutating endpoints lacked auth -> Implemented `/api/auth/pin`, HMAC session tokens, and route guards.
+- **[SSE-Sound-Thrashing]** `useEffect` dependent on `isSoundEnabled` caused SSE reconnections -> Decoupled via `isSoundEnabledRef`.
 
 ## 5. Rolling Changelog (Max 5)
+- `2026-11-22` Adversarial code review audit completed: resolved 5 critical/high/medium issues (DB awaiting, price tampering, memory limits, PIN auth, SSE).
 - `2026-11-22` Expanded catalog to 28 dishes across 7 categories (Bar/Cocktails, Steaks, Breakfasts, Specialty Coffee) and re-seeded Neon DB.
 - `2026-11-22` Option 3 verified: ELQR/MBANK/О!Деньги payments flow, Sandbox simulation, and Salyk.kg fiscal receipt generation.
 - `2026-11-22` Live Vercel production deployment completed at `https://smart-menu-nu.vercel.app`, GitHub CI/CD established.
 - `2026-11-22` Option 1 complete: Built Menu CRUD API, `MenuManager.tsx` UI, real-time `MENU_UPDATED` SSE sync, 8/8 tests passed.
-- `2026-11-22` Successfully migrated to Neon Cloud PostgreSQL (`soft-base-44931194`), pushed schema, seeded menu data.

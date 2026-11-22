@@ -21,7 +21,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     const mockBankTxnId = `BNK-KG-${Date.now().toString(36).toUpperCase()}`;
-    const result = updatePaymentTransactionStatus(transactionId, 'paid', mockBankTxnId);
+    const result = await updatePaymentTransactionStatus(transactionId, 'paid', mockBankTxnId);
 
     if (!result) {
       return NextResponse.json(

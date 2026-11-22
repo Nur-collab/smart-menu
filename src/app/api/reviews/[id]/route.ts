@@ -28,7 +28,7 @@ export async function PATCH(
       );
     }
 
-    const updated = updateReviewStatus(id, body.status, body.managerNotes);
+    const updated = await updateReviewStatus(id, body.status, body.managerNotes);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: 'Отзыв не найден' },

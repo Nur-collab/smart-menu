@@ -40,23 +40,38 @@ export function PinPadLockScreen({
     setErrorMessage('');
 
     if (newPin.length === 4) {
-      const staff = authenticateStaffPin(newPin);
-      if (staff) {
-        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-          navigator.vibrate?.([30, 30, 30]);
-        }
-        onAuthenticated(staff);
-      } else {
-        setIsError(true);
-        setErrorMessage('Неверный PIN-код сотрудника');
-        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-          navigator.vibrate?.([150, 50, 150]);
-        }
-        setTimeout(() => {
-          setPin('');
-          setIsError(false);
-        }, 800);
-      }
+      fetch('/api/auth/pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: newPin }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Неверный PIN-код');
+          }
+          return res.json();
+        })
+        .then((data: { member: StaffMember; token: string }) => {
+          if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+            navigator.vibrate?.([30, 30, 30]);
+          }
+          if (data.token) {
+            sessionStorage.setItem('aura_staff_token', data.token);
+          }
+          onAuthenticated(data.member);
+        })
+        .catch((err: Error) => {
+          setIsError(true);
+          setErrorMessage(err.message || 'Неверный PIN-код сотрудника');
+          if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+            navigator.vibrate?.([150, 50, 150]);
+          }
+          setTimeout(() => {
+            setPin('');
+            setIsError(false);
+          }, 800);
+        });
     }
   };
 

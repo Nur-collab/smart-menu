@@ -5,6 +5,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useRef,
   useCallback,
   useMemo,
   ReactNode,
@@ -167,6 +168,11 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
   const [selectedItemForDetails, setSelectedItemForDetails] = useState<MenuItem | null>(null);
   const [userBonusBalance, setUserBonusBalance] = useState<number>(350);
   const [isSoundEnabled, setIsSoundEnabled] = useState<boolean>(true);
+  const isSoundEnabledRef = useRef<boolean>(isSoundEnabled);
+
+  useEffect(() => {
+    isSoundEnabledRef.current = isSoundEnabled;
+  }, [isSoundEnabled]);
 
   // Мультиязычность
   const [language, setLanguageState] = useState<Language>(() => {
@@ -277,7 +283,7 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
                 const exists = prev.some((o) => o.id === newOrder.id);
                 return exists ? prev : [newOrder, ...prev];
               });
-              if (isSoundEnabled) {
+              if (isSoundEnabledRef.current) {
                 playOrderChime();
               }
               break;
@@ -295,7 +301,7 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
                 const exists = prev.some((c) => c.id === newCall.id);
                 return exists ? prev : [newCall, ...prev];
               });
-              if (isSoundEnabled) {
+              if (isSoundEnabledRef.current) {
                 playWaiterCallChime();
               }
               break;
@@ -353,7 +359,7 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
         eventSource.close();
       }
     };
-  }, [isSoundEnabled]);
+  }, []);
 
   const toggleStopList = useCallback((itemId: string): void => {
     // Оптимистичное локальное обновление

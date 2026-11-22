@@ -260,7 +260,7 @@ export function getAllOrders(): readonly Order[] {
   return [...storeState.orders];
 }
 
-export function createOrder(order: Order): Order {
+export async function createOrder(order: Order): Promise<Order> {
   if (order.id) {
     const existing = storeState.orders.find((o) => o.id === order.id);
     if (existing) {
@@ -283,7 +283,8 @@ export function createOrder(order: Order): Order {
     updatedAt: now,
   };
 
-  storeState.orders = [completeOrder, ...storeState.orders];
+  const MAX_ORDERS_CACHE = 100;
+  storeState.orders = [completeOrder, ...storeState.orders].slice(0, MAX_ORDERS_CACHE);
 
   broadcastEvent({
     type: 'NEW_ORDER',
@@ -291,41 +292,39 @@ export function createOrder(order: Order): Order {
     timestamp: now,
   });
 
-  // Фоновое асинхронное сохранение заказа в облачный Neon PostgreSQL
-  void (async () => {
-    try {
-      await prisma.order.upsert({
-        where: { id: completeOrder.id },
-        update: {
-          status: completeOrder.status,
-          totalAmount: completeOrder.totalAmount,
-          discountAmount: completeOrder.discountAmount,
-          tipAmount: completeOrder.tipAmount,
-          finalAmount: completeOrder.finalAmount,
-          paymentMethod: completeOrder.paymentMethod,
-          guestComment: completeOrder.guestComment ?? null,
-          items: completeOrder.items as unknown as Prisma.InputJsonValue,
-          updatedAt: new Date(now),
-        },
-        create: {
-          id: completeOrder.id,
-          tableNumber: completeOrder.tableNumber,
-          totalAmount: completeOrder.totalAmount,
-          discountAmount: completeOrder.discountAmount,
-          tipAmount: completeOrder.tipAmount,
-          finalAmount: completeOrder.finalAmount,
-          paymentMethod: completeOrder.paymentMethod,
-          status: completeOrder.status,
-          guestComment: completeOrder.guestComment ?? null,
-          items: completeOrder.items as unknown as Prisma.InputJsonValue,
-          createdAt: new Date(completeOrder.createdAt || now),
-          updatedAt: new Date(now),
-        },
-      });
-    } catch (err) {
-      console.error('Failed to sync order to Neon Prisma:', err);
-    }
-  })();
+  // Надежное сохранение заказа в облачный Neon PostgreSQL (дожидаемся перед ответом в serverless)
+  try {
+    await prisma.order.upsert({
+      where: { id: completeOrder.id },
+      update: {
+        status: completeOrder.status,
+        totalAmount: completeOrder.totalAmount,
+        discountAmount: completeOrder.discountAmount,
+        tipAmount: completeOrder.tipAmount,
+        finalAmount: completeOrder.finalAmount,
+        paymentMethod: completeOrder.paymentMethod,
+        guestComment: completeOrder.guestComment ?? null,
+        items: completeOrder.items as unknown as Prisma.InputJsonValue,
+        updatedAt: new Date(now),
+      },
+      create: {
+        id: completeOrder.id,
+        tableNumber: completeOrder.tableNumber,
+        totalAmount: completeOrder.totalAmount,
+        discountAmount: completeOrder.discountAmount,
+        tipAmount: completeOrder.tipAmount,
+        finalAmount: completeOrder.finalAmount,
+        paymentMethod: completeOrder.paymentMethod,
+        status: completeOrder.status,
+        guestComment: completeOrder.guestComment ?? null,
+        items: completeOrder.items as unknown as Prisma.InputJsonValue,
+        createdAt: new Date(completeOrder.createdAt || now),
+        updatedAt: new Date(now),
+      },
+    });
+  } catch (err) {
+    console.error('Failed to sync order to Neon Prisma:', err);
+  }
 
   // Автоматический фоновый проброс в кассу POS и на сетевой принтер бегунков кухни
   try {
@@ -341,7 +340,7 @@ export function createOrder(order: Order): Order {
   return completeOrder;
 }
 
-export function updateOrderStatusInStore(orderId: string, status: OrderStatus): Order | null {
+export async function updateOrderStatusInStore(orderId: string, status: OrderStatus): Promise<Order | null> {
   const existingIndex = storeState.orders.findIndex((o) => o.id === orderId);
   if (existingIndex === -1) return null;
 
@@ -360,17 +359,15 @@ export function updateOrderStatusInStore(orderId: string, status: OrderStatus): 
     timestamp: now,
   });
 
-  // Фоновое сохранение статуса заказа в Neon PostgreSQL
-  void (async () => {
-    try {
-      await prisma.order.update({
-        where: { id: orderId },
-        data: { status, updatedAt: new Date(now) },
-      });
-    } catch (err) {
-      console.error('Failed to update order status in Neon Prisma:', err);
-    }
-  })();
+  // Надежное сохранение статуса заказа в Neon PostgreSQL
+  try {
+    await prisma.order.update({
+      where: { id: orderId },
+      data: { status, updatedAt: new Date(now) },
+    });
+  } catch (err) {
+    console.error('Failed to update order status in Neon Prisma:', err);
+  }
 
   return updatedOrder;
 }
@@ -381,7 +378,7 @@ export function getAllWaiterCalls(): readonly WaiterCall[] {
   return [...storeState.waiterCalls];
 }
 
-export function createWaiterCall(tableNumber: number, reason: WaiterCallReason): WaiterCall {
+export async function createWaiterCall(tableNumber: number, reason: WaiterCallReason): Promise<WaiterCall> {
   const newCall: WaiterCall = {
     id: `call-${Date.now().toString(36)}`,
     tableNumber,
@@ -390,7 +387,8 @@ export function createWaiterCall(tableNumber: number, reason: WaiterCallReason):
     createdAt: new Date().toISOString(),
   };
 
-  storeState.waiterCalls = [newCall, ...storeState.waiterCalls];
+  const MAX_WAITER_CALLS_CACHE = 50;
+  storeState.waiterCalls = [newCall, ...storeState.waiterCalls].slice(0, MAX_WAITER_CALLS_CACHE);
 
   broadcastEvent({
     type: 'NEW_WAITER_CALL',
@@ -398,27 +396,25 @@ export function createWaiterCall(tableNumber: number, reason: WaiterCallReason):
     timestamp: new Date().toISOString(),
   });
 
-  // Фоновое сохранение вызова официанта в Neon PostgreSQL
-  void (async () => {
-    try {
-      await prisma.waiterCall.create({
-        data: {
-          id: newCall.id,
-          tableNumber: newCall.tableNumber,
-          reason: newCall.reason,
-          status: newCall.status,
-          createdAt: new Date(newCall.createdAt),
-        },
-      });
-    } catch (err) {
-      console.error('Failed to sync waiter call to Neon Prisma:', err);
-    }
-  })();
+  // Надежное сохранение вызова официанта в Neon PostgreSQL
+  try {
+    await prisma.waiterCall.create({
+      data: {
+        id: newCall.id,
+        tableNumber: newCall.tableNumber,
+        reason: newCall.reason,
+        status: newCall.status,
+        createdAt: new Date(newCall.createdAt),
+      },
+    });
+  } catch (err) {
+    console.error('Failed to sync waiter call to Neon Prisma:', err);
+  }
 
   return newCall;
 }
 
-export function resolveWaiterCallInStore(callId: string): WaiterCall | null {
+export async function resolveWaiterCallInStore(callId: string): Promise<WaiterCall | null> {
   const existingIndex = storeState.waiterCalls.findIndex((c) => c.id === callId);
   if (existingIndex === -1) return null;
 
@@ -435,17 +431,15 @@ export function resolveWaiterCallInStore(callId: string): WaiterCall | null {
     timestamp: new Date().toISOString(),
   });
 
-  // Фоновое обновление статуса вызова в Neon PostgreSQL
-  void (async () => {
-    try {
-      await prisma.waiterCall.update({
-        where: { id: callId },
-        data: { status: 'resolved', updatedAt: new Date() },
-      });
-    } catch (err) {
-      console.error('Failed to resolve waiter call in Neon Prisma:', err);
-    }
-  })();
+  // Надежное обновление статуса вызова в Neon PostgreSQL
+  try {
+    await prisma.waiterCall.update({
+      where: { id: callId },
+      data: { status: 'resolved', updatedAt: new Date() },
+    });
+  } catch (err) {
+    console.error('Failed to resolve waiter call in Neon Prisma:', err);
+  }
 
   return resolvedCall;
 }
@@ -456,7 +450,7 @@ export function getStopList(): readonly string[] {
   return Array.from(storeState.stopList);
 }
 
-export function toggleStopListItem(itemId: string): readonly string[] {
+export async function toggleStopListItem(itemId: string): Promise<readonly string[]> {
   const isNowInStopList = !storeState.stopList.has(itemId);
   if (isNowInStopList) {
     storeState.stopList.add(itemId);
@@ -472,17 +466,15 @@ export function toggleStopListItem(itemId: string): readonly string[] {
     timestamp: new Date().toISOString(),
   });
 
-  // Фоновое обновление доступности блюда в Neon PostgreSQL
-  void (async () => {
-    try {
-      await prisma.menuItem.update({
-        where: { id: itemId },
-        data: { isAvailable: !isNowInStopList },
-      });
-    } catch (err) {
-      console.error('Failed to sync stoplist to Neon Prisma:', err);
-    }
-  })();
+  // Надежное обновление доступности блюда в Neon PostgreSQL
+  try {
+    await prisma.menuItem.update({
+      where: { id: itemId },
+      data: { isAvailable: !isNowInStopList },
+    });
+  } catch (err) {
+    console.error('Failed to sync stoplist to Neon Prisma:', err);
+  }
 
   return updated;
 }
@@ -544,6 +536,12 @@ export function createPaymentTransaction(
     expiresAt,
   };
 
+  const MAX_TRANSACTIONS_CACHE = 200;
+  if (storeState.transactions.size >= MAX_TRANSACTIONS_CACHE) {
+    const oldestKey = storeState.transactions.keys().next().value;
+    if (oldestKey) storeState.transactions.delete(oldestKey);
+  }
+
   storeState.transactions.set(transactionId, transaction);
   return transaction;
 }
@@ -561,11 +559,11 @@ export function getPaymentTransactionByOrderId(orderId: string): PaymentTransact
   return undefined;
 }
 
-export function updatePaymentTransactionStatus(
+export async function updatePaymentTransactionStatus(
   transactionId: string,
   status: PaymentTransactionStatus,
   externalTransactionId?: string
-): { transaction: PaymentTransaction; order?: Order; fiscalReceipt?: FiscalReceipt } | null {
+): Promise<{ transaction: PaymentTransaction; order?: Order; fiscalReceipt?: FiscalReceipt } | null> {
   const existingTxn = storeState.transactions.get(transactionId);
   if (!existingTxn) return null;
 
@@ -605,11 +603,26 @@ export function updatePaymentTransactionStatus(
       };
       storeState.orders[orderIndex] = updatedOrder;
 
+      // Надежно сохраняем статус оплаты заказа в Neon PostgreSQL
+      try {
+        await prisma.order.update({
+          where: { id: existingTxn.orderId },
+          data: { status: 'paid', updatedAt: new Date(now) },
+        });
+      } catch (err) {
+        console.error('Failed to update order status to paid in Neon Prisma:', err);
+      }
+
       // 2. Генерируем фискальный чек ЭККМ ГНС КР
       fiscalReceipt = createFiscalReceiptFromOrder({
         order: updatedOrder,
         transactionId: updatedTxn.id,
       });
+      const MAX_RECEIPTS_CACHE = 200;
+      if (storeState.fiscalReceipts.size >= MAX_RECEIPTS_CACHE) {
+        const oldestKey = storeState.fiscalReceipts.keys().next().value;
+        if (oldestKey) storeState.fiscalReceipts.delete(oldestKey);
+      }
       storeState.fiscalReceipts.set(fiscalReceipt.id, fiscalReceipt);
 
       updatedTxn = {
@@ -677,6 +690,11 @@ export function generateFiscalReceiptForOrder(
     transactionId,
   });
 
+  const MAX_RECEIPTS_CACHE = 200;
+  if (storeState.fiscalReceipts.size >= MAX_RECEIPTS_CACHE) {
+    const oldestKey = storeState.fiscalReceipts.keys().next().value;
+    if (oldestKey) storeState.fiscalReceipts.delete(oldestKey);
+  }
   storeState.fiscalReceipts.set(receipt.id, receipt);
 
   broadcastEvent({
@@ -691,7 +709,7 @@ export function generateFiscalReceiptForOrder(
 /**
  * Создать новый отзыв гостя со столика и начислить бонусы при высокой оценке
  */
-export function createReview(payload: ReviewSubmitPayload): GuestReview {
+export async function createReview(payload: ReviewSubmitPayload): Promise<GuestReview> {
   // Защита от дублирования отзывов и накрутки бонусов по одному заказу
   if (payload.orderId) {
     const existing = storeState.reviews.find((r) => r.orderId === payload.orderId);
@@ -718,29 +736,28 @@ export function createReview(payload: ReviewSubmitPayload): GuestReview {
     createdAt: new Date().toISOString(),
   };
 
-  storeState.reviews = [review, ...storeState.reviews];
+  const MAX_REVIEWS_CACHE = 50;
+  storeState.reviews = [review, ...storeState.reviews].slice(0, MAX_REVIEWS_CACHE);
 
-  // Фоновое сохранение отзыва в Neon PostgreSQL
-  void (async () => {
-    try {
-      await prisma.guestReview.create({
-        data: {
-          id: review.id,
-          tableNumber: review.tableNumber,
-          rating: review.rating,
-          sentiment: review.sentiment,
-          tags: [...review.tags],
-          comment: review.comment || null,
-          externalPlatform: review.externalPlatform || null,
-          bonusAwarded: review.bonusAwarded,
-          status: review.status,
-          createdAt: new Date(review.createdAt),
-        },
-      });
-    } catch (err) {
-      console.error('Failed to sync review to Neon Prisma:', err);
-    }
-  })();
+  // Надежное сохранение отзыва в Neon PostgreSQL
+  try {
+    await prisma.guestReview.create({
+      data: {
+        id: review.id,
+        tableNumber: review.tableNumber,
+        rating: review.rating,
+        sentiment: review.sentiment,
+        tags: [...review.tags],
+        comment: review.comment || null,
+        externalPlatform: review.externalPlatform || null,
+        bonusAwarded: review.bonusAwarded,
+        status: review.status,
+        createdAt: new Date(review.createdAt),
+      },
+    });
+  } catch (err) {
+    console.error('Failed to sync review to Neon Prisma:', err);
+  }
 
   // Рассылка оповещения на планшет администратора
   broadcastEvent({
@@ -818,11 +835,11 @@ export function getReviewStats(): ReviewStats {
 /**
  * Обновить статус отзыва управляющим (например, отметка об урегулировании претензии)
  */
-export function updateReviewStatus(
+export async function updateReviewStatus(
   id: string,
   status: GuestReview['status'],
   managerNotes?: string
-): GuestReview | null {
+): Promise<GuestReview | null> {
   const target = storeState.reviews.find((r) => r.id === id);
   if (!target) return null;
 
@@ -833,6 +850,18 @@ export function updateReviewStatus(
   };
 
   storeState.reviews = storeState.reviews.map((r) => (r.id === id ? updated : r));
+
+  try {
+    await prisma.guestReview.update({
+      where: { id },
+      data: {
+        status,
+      },
+    });
+  } catch (err) {
+    console.error('Failed to update review status in Neon Prisma:', err);
+  }
+
   return updated;
 }
 

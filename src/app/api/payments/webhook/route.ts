@@ -47,7 +47,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     if (payload.status === 'SUCCESS') {
-      const result = updatePaymentTransactionStatus(
+      const result = await updatePaymentTransactionStatus(
         payload.transactionId,
         'paid',
         payload.bankTransactionId
@@ -62,7 +62,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       });
     }
 
-    const failedResult = updatePaymentTransactionStatus(
+    const failedResult = await updatePaymentTransactionStatus(
       payload.transactionId,
       'failed',
       payload.bankTransactionId

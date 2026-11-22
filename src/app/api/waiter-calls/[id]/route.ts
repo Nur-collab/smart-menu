@@ -10,7 +10,7 @@ interface RouteContext {
 export async function PATCH(_req: NextRequest, context: RouteContext): Promise<NextResponse> {
   try {
     const { id } = await context.params;
-    const resolved = resolveWaiterCallInStore(id);
+    const resolved = await resolveWaiterCallInStore(id);
 
     if (!resolved) {
       return NextResponse.json(

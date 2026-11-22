@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateOrderStatusInStore } from '@/lib/serverStore';
 import { OrderStatus } from '@/types/menu';
+import { authorizeStaffRequest } from '@/lib/serverAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +11,11 @@ interface RouteContext {
 
 export async function PATCH(req: NextRequest, context: RouteContext): Promise<NextResponse> {
   try {
+    const auth = authorizeStaffRequest(req);
+    if (!auth.authorized) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+
     const { id } = await context.params;
     const body = (await req.json()) as { status: OrderStatus };
 
@@ -20,7 +26,7 @@ export async function PATCH(req: NextRequest, context: RouteContext): Promise<Ne
       );
     }
 
-    const updated = updateOrderStatusInStore(id, body.status);
+    const updated = await updateOrderStatusInStore(id, body.status);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: 'Заказ не найден' },

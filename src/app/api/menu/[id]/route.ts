@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { broadcastEvent } from '@/lib/serverStore';
+import { authorizeStaffRequest } from '@/lib/serverAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +39,11 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const auth = authorizeStaffRequest(req, 'canManageMenu');
+    if (!auth.authorized) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+
     const { id } = await context.params;
     const body = await req.json();
 
@@ -139,10 +145,15 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const auth = authorizeStaffRequest(req, 'canManageMenu');
+    if (!auth.authorized) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+
     const { id } = await context.params;
 
     const existing = await prisma.menuItem.findUnique({

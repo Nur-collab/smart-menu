@@ -3,6 +3,7 @@ import { CAFE_INFO, CATEGORIES, MENU_ITEMS } from '@/data/mockData';
 import { getStopList, broadcastEvent } from '@/lib/serverStore';
 import { prisma } from '@/lib/prisma';
 import { Category, MenuItem } from '@/types/menu';
+import { authorizeStaffRequest } from '@/lib/serverAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,6 +127,11 @@ export async function GET(): Promise<NextResponse> {
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    const auth = authorizeStaffRequest(req, 'canManageMenu');
+    if (!auth.authorized) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+
     const body = await req.json();
     const {
       name,

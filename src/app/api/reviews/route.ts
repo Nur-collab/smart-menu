@@ -43,7 +43,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const review = createReview({
+    const review = await createReview({
       orderId: body.orderId,
       tableNumber: Number(body.tableNumber),
       rating: body.rating,

@@ -137,6 +137,10 @@ function AdminDashboardContent(): React.JSX.Element {
   const handleLogout = (): void => {
     try {
       sessionStorage.removeItem('aura_staff_session');
+      sessionStorage.removeItem('aura_staff_token');
+      if (typeof document !== 'undefined') {
+        document.cookie = 'aura_staff_token=; path=/; max-age=0';
+      }
       window.dispatchEvent(new Event('aura_staff_session_change'));
     } catch {
       // ignore
