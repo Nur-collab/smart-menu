@@ -253,6 +253,90 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
     setUserBonusBalance((prev) => Math.max(0, prev + amount));
   }, []);
 
+  // Синхронизация заказов с сервером (Neon PostgreSQL)
+  const syncOrders = useCallback(async (): Promise<void> => {
+    try {
+      const res = await fetch('/api/orders');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          const serverOrders = data.data as Order[];
+          setOrders((prev) => {
+            const map = new Map<string, Order>();
+            for (const ord of prev) {
+              map.set(ord.id, ord);
+            }
+            for (const sOrd of serverOrders) {
+              const localOrd = map.get(sOrd.id);
+              if (!localOrd) {
+                map.set(sOrd.id, sOrd);
+              } else {
+                const sTime = new Date(sOrd.updatedAt || sOrd.createdAt).getTime();
+                const lTime = new Date(localOrd.updatedAt || localOrd.createdAt).getTime();
+                if (sTime >= lTime || sOrd.status !== localOrd.status) {
+                  map.set(sOrd.id, { ...localOrd, ...sOrd });
+                }
+              }
+            }
+            return Array.from(map.values()).sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          });
+        }
+      }
+    } catch {
+      // Игнорируем фоновые ошибки сети
+    }
+  }, []);
+
+  // Синхронизация вызовов официанта
+  const syncWaiterCalls = useCallback(async (): Promise<void> => {
+    try {
+      const res = await fetch('/api/waiter-calls');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          const serverCalls = data.data as WaiterCall[];
+          setWaiterCalls(serverCalls);
+        }
+      }
+    } catch {
+      // Игнорируем фоновые ошибки сети
+    }
+  }, []);
+
+  // Первоначальная загрузка заказов и вызовов при монтировании
+  useEffect(() => {
+    void syncOrders();
+    void syncWaiterCalls();
+  }, [syncOrders, syncWaiterCalls]);
+
+  // Периодический опрос сервера каждые 2.5 секунды для мгновенной синхронизации KDS и гостя
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        void syncOrders();
+        void syncWaiterCalls();
+      }
+    }, 2500);
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void syncOrders();
+        void syncWaiterCalls();
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [syncOrders, syncWaiterCalls]);
+
   // Подключение к серверному SSE потоку (Server-Sent Events) для real-time синхронизации
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -521,10 +605,18 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
       prev.map((ord) => (ord.id === orderId ? { ...ord, status, updatedAt: now } : ord))
     );
 
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (typeof window !== 'undefined') {
+      const token = sessionStorage.getItem('aura_staff_token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
     // Отправка на центральный сервер
     fetch(`/api/orders/${orderId}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ status }),
     }).catch(() => {
       // Фолбэк
@@ -578,7 +670,11 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
       orders.find(
         (o) =>
           o.tableNumber === tableNumber &&
-          (o.status === 'pending' || o.status === 'accepted' || o.status === 'cooking' || o.status === 'ready')
+          (o.status === 'pending' ||
+            o.status === 'accepted' ||
+            o.status === 'cooking' ||
+            o.status === 'ready' ||
+            o.status === 'served')
       ) ?? null
     );
   }, [orders, tableNumber]);

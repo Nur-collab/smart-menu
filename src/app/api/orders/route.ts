@@ -7,7 +7,7 @@ import { OrderService } from '@/services/orderService';
 export const dynamic = 'force-dynamic';
 
 export async function GET(): Promise<NextResponse> {
-  const orders = getAllOrders();
+  const orders = await getAllOrders();
   return NextResponse.json({ success: true, data: orders });
 }
 

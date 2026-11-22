@@ -6,7 +6,7 @@ import { validateWaiterCallInput } from '@/lib/validation/schemas';
 export const dynamic = 'force-dynamic';
 
 export async function GET(): Promise<NextResponse> {
-  const calls = getAllWaiterCalls();
+  const calls = await getAllWaiterCalls();
   return NextResponse.json({ success: true, data: calls });
 }
 

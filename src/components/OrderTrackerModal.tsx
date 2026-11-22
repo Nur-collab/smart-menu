@@ -115,10 +115,22 @@ export function OrderTrackerModal(): React.JSX.Element | null {
             </span>
           </div>
           <h3 className="text-lg font-black text-[#24211D] mt-0.5">
-            {t('orderCookingBanner')}: {t('tableNumberPrefix')}{activeOrder.tableNumber}
+            {activeOrder.status === 'cooking'
+              ? `${t('orderCookingBanner')}: ${t('tableNumberPrefix')}${activeOrder.tableNumber}`
+              : activeOrder.status === 'ready'
+              ? `${t('statusReady')}! ${t('tableNumberPrefix')}${activeOrder.tableNumber}`
+              : activeOrder.status === 'served' || activeOrder.status === 'paid'
+              ? `${t('statusServed')}! ${t('tableNumberPrefix')}${activeOrder.tableNumber}`
+              : `${t('orderAccepted')}: ${t('tableNumberPrefix')}${activeOrder.tableNumber}`}
           </h3>
           <p className="text-xs text-[#7E766D] mt-0.5">
-            {language === 'en' ? 'Our kitchen team has started preparing your dishes' : language === 'kg' ? 'Ашпозчу сиздин тамактарыңызды даярдап жатат' : 'Шеф уже приступил к приготовлению ваших блюд'}
+            {activeOrder.status === 'cooking'
+              ? (language === 'en' ? 'Our kitchen team has started preparing your dishes' : language === 'kg' ? 'Ашпозчу сиздин тамактарыңызды даярдап жатат' : 'Шеф уже приступил к приготовлению ваших блюд')
+              : activeOrder.status === 'ready'
+              ? (language === 'en' ? 'Your dishes are ready! The waiter is on the way' : language === 'kg' ? 'Тамактар даяр! Официант алып келе жатат' : 'Блюда готовы! Официант уже несет их к вашему столику')
+              : activeOrder.status === 'served' || activeOrder.status === 'paid'
+              ? (language === 'en' ? 'Enjoy your meal! Please let us know how everything was' : language === 'kg' ? 'Тамагыңыз таттуу болсун! Сизге жакты деп үмүттөнөбүз' : 'Приятного аппетита! Желаем отличного отдыха')
+              : (language === 'en' ? 'Order received and sent to the kitchen' : language === 'kg' ? 'Буйрутма кабыл алынды жана ашканага жөнөтүлдү' : 'Заказ принят и передан поварам')}
           </p>
         </div>
 

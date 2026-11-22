@@ -14,8 +14,10 @@
   - DB Seed: `npx tsx prisma/seed.ts`
 
 ## 2. Active Work State
-- **Current Status:** Full 3-Language (KG, RU, EN) localization deployed and E2E verified in production.
+- **Current Status:** Real-time Order Status Synchronization (Neon DB + 2.5s Polling) deployed.
 - **Enterprise Features:**
+  - Full bidirectional order status sync: Staff KDS/Admin (`/admin`) updates propagate to Guest (`/?table=4`) in <2.5s.
+  - Direct Neon PostgreSQL queries on `GET /api/orders` & `PATCH /api/orders/[id]` preventing serverless container isolation bugs.
   - Complete 3-language system (Кыргызча 🇰🇬, Русский 🇷🇺, English 🇬🇧) across all 7 categories, 28 dishes, option groups, KBJU, search, cart, waiter call, payment modals, and fiscal receipt.
   - Multilingual search union matcher (searches across RU, KG, EN in real time).
   - Sliding-window IP rate limiting (`RATE_LIMITS.PIN_AUTH` 5 attempts/5min, `ORDER_CREATION` 30/5min, `WAITER_CALL` 10/5min).
@@ -31,21 +33,21 @@
 
 ## 3. Architecture Invariants
 - **Vercel Serverless & Neon Pooler:** Production runtime executes over Neon PgBouncer pooler (`DATABASE_URL`). All DB writes in API handlers are strictly awaited before returning HTTP responses.
+- **Hybrid Real-Time Sync:** Because Vercel serverless containers do not share memory, Neon PostgreSQL serves as the single source of truth; clients poll `/api/orders` every 2.5s when visible.
 - **Timing-Safe Crypto & Anti-Brute-Force:** PIN auth is strictly rate-limited with HTTP 429 lockouts; tokens are verified in constant time via `crypto.timingSafeEqual`.
 - **Domain Services:** Route handlers act purely as HTTP adapters; all domain validation, DB queries, and pricing calculations reside in `src/services/`.
 - **Continuous Deployment (CI/CD):** Every commit pushed to `main` on GitHub triggers an automatic production build and deployment on Vercel.
-- **Multilingual Invariant:** All DB items and UI components must provide complete KG, RU, and EN representations; SSR hydration must remain safe.
 
 ## 4. Bug Graveyard
+- **[Serverless-Order-Status-Desync]** Ephemeral lambdas lacked cross-container Neon sync; guest lacked polling fallback; status banner was hardcoded to "Принят" -> Direct Neon DB queries on PATCH/GET, 2.5s client polling with visibility listener, dynamic 4-stage tracking UI.
 - **[PIN-Brute-Force-Risk]** Unlimited 4-digit PIN attempts allowed -> Added IP-based sliding-window rate limiter (5 max attempts / 5 min).
 - **[Timing-Attack-Vulnerability]** Standard string comparison in HMAC validation -> Upgraded to `crypto.timingSafeEqual`.
 - **[Serverless-Unawaited-DB-Ops]** Floating promises in Lambda caused silent Neon drops on context freeze -> Converted store mutators to async and awaited in API handlers.
 - **[Price-Tampering-Vulnerability]** Client-forged prices accepted by `POST /api/orders` -> Enforced server-side DB recalculation and option validation.
-- **[I18n-Hydration-Mismatch]** Reading `localStorage` during initial `useState` caused client/server markup divergence -> Deferred storage sync to `useEffect`.
 
 ## 5. Rolling Changelog (Max 5)
+- `2026-11-22` Fixed real-time order status desync: Neon DB source of truth for PATCH/GET, 2.5s client polling, reactive FloatingCartBar & OrderTrackerModal stages.
 - `2026-11-22` Full 3-Language System (KG, RU, EN) rolled out: 28 dishes, 7 categories, options, search, cart, waiter call, payment modals. E2E verified on production.
 - `2026-11-22` Principal Architecture upgrade: Rate limiting, Timing-Safe HMAC, Input schemas, OWASP headers, `OrderService`, `/api/health`.
 - `2026-11-22` Staff review audit complete: async DB writes, price tampering protection, in-memory FIFO limits, PIN auth.
 - `2026-11-22` Expanded catalog to 28 dishes across 7 categories (Bar/Cocktails, Steaks, Breakfasts, Specialty Coffee) and re-seeded Neon DB.
-- `2026-11-22` Option 3 verified: ELQR/MBANK/О!Деньги payments flow, Sandbox simulation, and Salyk.kg fiscal receipt generation.

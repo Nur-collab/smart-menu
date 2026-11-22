@@ -1,3 +1,5 @@
+import type { OrderStatus } from '@/types/menu';
+
 export type Language = 'ru' | 'kg' | 'en';
 
 export interface Translations {
@@ -586,4 +588,21 @@ export function getLocalizedOptionName(
   if (lang === 'kg' && option.nameKg) return option.nameKg;
   if (lang === 'en' && option.nameEn) return option.nameEn;
   return option.name;
+}
+
+export function getLocalizedOrderStatus(status: OrderStatus, lang: Language): string {
+  switch (status) {
+    case 'cooking':
+      return DICTIONARY[lang]?.statusCooking || 'Готовится';
+    case 'ready':
+      return DICTIONARY[lang]?.statusReady || 'Готов';
+    case 'served':
+      return DICTIONARY[lang]?.statusServed || 'Подан';
+    case 'paid':
+      return DICTIONARY[lang]?.statusPaid || 'Оплачен';
+    case 'pending':
+    case 'accepted':
+    default:
+      return DICTIONARY[lang]?.statusAccepted || 'Принят';
+  }
 }

@@ -256,7 +256,42 @@ if (!globalWithTimer.__smartMenuSseKeepAlive) {
 
 // === Методы работы с заказами ===
 
-export function getAllOrders(): readonly Order[] {
+export async function getAllOrders(): Promise<readonly Order[]> {
+  try {
+    const dbOrders = await prisma.order.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+    if (dbOrders.length > 0) {
+      const mappedOrders: Order[] = dbOrders.map((o) => ({
+        id: o.id,
+        tableNumber: o.tableNumber,
+        items: Array.isArray(o.items) ? (o.items as unknown as CartItem[]) : [],
+        totalAmount: o.totalAmount,
+        discountAmount: o.discountAmount,
+        tipAmount: o.tipAmount,
+        finalAmount: o.finalAmount,
+        paymentMethod: o.paymentMethod as PaymentMethod,
+        status: o.status as OrderStatus,
+        guestComment: o.guestComment ?? undefined,
+        createdAt: o.createdAt.toISOString(),
+        updatedAt: o.updatedAt.toISOString(),
+      }));
+
+      const orderMap = new Map<string, Order>();
+      for (const ord of storeState.orders) {
+        orderMap.set(ord.id, ord);
+      }
+      for (const ord of mappedOrders) {
+        orderMap.set(ord.id, ord);
+      }
+      storeState.orders = Array.from(orderMap.values()).sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    }
+  } catch (err) {
+    console.warn('getAllOrders Neon fallback to memory store:', err);
+  }
   return [...storeState.orders];
 }
 
@@ -341,10 +376,40 @@ export async function createOrder(order: Order): Promise<Order> {
 }
 
 export async function updateOrderStatusInStore(orderId: string, status: OrderStatus): Promise<Order | null> {
-  const existingIndex = storeState.orders.findIndex((o) => o.id === orderId);
+  const now = new Date().toISOString();
+  let existingIndex = storeState.orders.findIndex((o) => o.id === orderId);
+
+  // Если заказ не найден в памяти текущего serverless контейнера, поднимаем из Neon DB
+  if (existingIndex === -1) {
+    try {
+      const dbOrder = await prisma.order.findUnique({
+        where: { id: orderId },
+      });
+      if (dbOrder) {
+        const mappedOrder: Order = {
+          id: dbOrder.id,
+          tableNumber: dbOrder.tableNumber,
+          items: Array.isArray(dbOrder.items) ? (dbOrder.items as unknown as CartItem[]) : [],
+          totalAmount: dbOrder.totalAmount,
+          discountAmount: dbOrder.discountAmount,
+          tipAmount: dbOrder.tipAmount,
+          finalAmount: dbOrder.finalAmount,
+          paymentMethod: dbOrder.paymentMethod as PaymentMethod,
+          status: dbOrder.status as OrderStatus,
+          guestComment: dbOrder.guestComment ?? undefined,
+          createdAt: dbOrder.createdAt.toISOString(),
+          updatedAt: dbOrder.updatedAt.toISOString(),
+        };
+        storeState.orders.unshift(mappedOrder);
+        existingIndex = 0;
+      }
+    } catch (err) {
+      console.error('Failed to lookup order in Neon Prisma during status update:', err);
+    }
+  }
+
   if (existingIndex === -1) return null;
 
-  const now = new Date().toISOString();
   const updatedOrder: Order = {
     ...storeState.orders[existingIndex],
     status,
@@ -374,7 +439,36 @@ export async function updateOrderStatusInStore(orderId: string, status: OrderSta
 
 // === Методы работы с вызовами официанта ===
 
-export function getAllWaiterCalls(): readonly WaiterCall[] {
+export async function getAllWaiterCalls(): Promise<readonly WaiterCall[]> {
+  try {
+    const dbCalls = await prisma.waiterCall.findMany({
+      where: { status: 'pending' },
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+    });
+    if (dbCalls.length > 0) {
+      const mappedCalls: WaiterCall[] = dbCalls.map((c) => ({
+        id: c.id,
+        tableNumber: c.tableNumber,
+        reason: c.reason as WaiterCallReason,
+        status: c.status as 'pending' | 'resolved',
+        createdAt: c.createdAt.toISOString(),
+      }));
+
+      const callMap = new Map<string, WaiterCall>();
+      for (const call of storeState.waiterCalls) {
+        callMap.set(call.id, call);
+      }
+      for (const call of mappedCalls) {
+        callMap.set(call.id, call);
+      }
+      storeState.waiterCalls = Array.from(callMap.values()).sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    }
+  } catch (err) {
+    console.warn('getAllWaiterCalls Neon fallback to memory store:', err);
+  }
   return [...storeState.waiterCalls];
 }
 
@@ -415,7 +509,29 @@ export async function createWaiterCall(tableNumber: number, reason: WaiterCallRe
 }
 
 export async function resolveWaiterCallInStore(callId: string): Promise<WaiterCall | null> {
-  const existingIndex = storeState.waiterCalls.findIndex((c) => c.id === callId);
+  let existingIndex = storeState.waiterCalls.findIndex((c) => c.id === callId);
+
+  if (existingIndex === -1) {
+    try {
+      const dbCall = await prisma.waiterCall.findUnique({
+        where: { id: callId },
+      });
+      if (dbCall) {
+        const mappedCall: WaiterCall = {
+          id: dbCall.id,
+          tableNumber: dbCall.tableNumber,
+          reason: dbCall.reason as WaiterCallReason,
+          status: dbCall.status as 'pending' | 'resolved',
+          createdAt: dbCall.createdAt.toISOString(),
+        };
+        storeState.waiterCalls.unshift(mappedCall);
+        existingIndex = 0;
+      }
+    } catch (err) {
+      console.error('Failed to lookup waiter call in Neon Prisma:', err);
+    }
+  }
+
   if (existingIndex === -1) return null;
 
   const resolvedCall: WaiterCall = {

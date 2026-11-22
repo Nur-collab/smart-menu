@@ -58,7 +58,11 @@ export function Header(): React.JSX.Element {
 
   const pendingWaiterCallsCount = waiterCalls.filter((c) => c.status === 'pending').length;
   const activeOrdersCount = orders.filter(
-    (o) => o.status === 'pending' || o.status === 'accepted' || o.status === 'cooking'
+    (o) =>
+      o.status === 'pending' ||
+      o.status === 'accepted' ||
+      o.status === 'cooking' ||
+      o.status === 'ready'
   ).length;
 
   return (
