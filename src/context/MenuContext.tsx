@@ -668,17 +668,28 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
   }, []);
 
   const activeOrder = useMemo((): Order | null => {
-    return (
-      orders.find(
-        (o) =>
-          o.tableNumber === tableNumber &&
-          (o.status === 'pending' ||
-            o.status === 'accepted' ||
-            o.status === 'cooking' ||
-            o.status === 'ready' ||
-            o.status === 'served')
-      ) ?? null
+    // 1. Приоритет: текущий незавершенный заказ стола
+    const inProgressOrder = orders.find(
+      (o) =>
+        o.tableNumber === tableNumber &&
+        (o.status === 'pending' ||
+          o.status === 'accepted' ||
+          o.status === 'cooking' ||
+          o.status === 'ready' ||
+          o.status === 'served')
     );
+    if (inProgressOrder) return inProgressOrder;
+
+    // 2. Если незавершенных нет, отображаем последний оплаченный заказ за последние 2 часа,
+    // чтобы гость мог видеть статус "Оплачен" и открыть официальный фискальный чек ГНС КР
+    const twoHoursAgo = Date.now() - 2 * 60 * 60 * 1000;
+    const recentPaidOrder = orders.find(
+      (o) =>
+        o.tableNumber === tableNumber &&
+        o.status === 'paid' &&
+        new Date(o.createdAt).getTime() > twoHoursAgo
+    );
+    return recentPaidOrder ?? null;
   }, [orders, tableNumber]);
 
   const contextValue: MenuContextValue = useMemo(
