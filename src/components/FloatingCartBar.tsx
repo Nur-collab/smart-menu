@@ -44,18 +44,22 @@ export function FloatingCartBar(): React.JSX.Element | null {
     ? `${t('statusPaid')} #${activeOrder?.id}`
     : `${t('orderAccepted')} #${activeOrder?.id}`;
 
-  const iconBg = isReady || isServed || isPaid ? 'bg-[#EBF5ED] text-[#2F6B42]' : 'bg-[#F4EBE3] text-[#B86B3E]';
-  const statusColor = isReady || isServed || isPaid ? 'text-[#2F6B42]' : 'text-[#B86B3E]';
+  const iconBg = isReady || isServed || isPaid
+    ? 'bg-[#EBF5ED] dark:bg-[#152B1E] text-[#2F6B42] dark:text-[#34D399]'
+    : 'bg-[#F4EBE3] dark:bg-[#27201C] text-[#B86B3E] dark:text-[#E07A43]';
+  const statusColor = isReady || isServed || isPaid
+    ? 'text-[#2F6B42] dark:text-[#34D399]'
+    : 'text-[#B86B3E] dark:text-[#E07A43]';
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 p-3.5 bg-gradient-to-t from-[#FBF9F5] via-[#FBF9F5]/90 to-transparent pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 z-40 p-3.5 bg-gradient-to-t from-[#FBF9F5] dark:from-[#121214] via-[#FBF9F5]/90 dark:via-[#121214]/90 to-transparent pointer-events-none transition-colors">
       <div className="max-w-md mx-auto space-y-2 pointer-events-auto">
         {/* Если есть активный готовящийся заказ */}
         {activeOrder && (
           <button
             type="button"
             onClick={() => setActiveModal('tracker')}
-            className="w-full bg-white/95 hover:bg-white border border-[#EFE9E0] rounded-2xl p-2.5 px-4 shadow-[0_4px_16px_rgba(40,30,20,0.06)] backdrop-blur-md flex items-center justify-between transition-all group cursor-pointer"
+            className="w-full bg-white/95 dark:bg-[#1C1C1F]/95 hover:bg-white dark:hover:bg-[#27272A] border border-[#EFE9E0] dark:border-[#27272A] rounded-2xl p-2.5 px-4 shadow-[0_4px_16px_rgba(40,30,20,0.06)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.4)] backdrop-blur-md flex items-center justify-between transition-all group cursor-pointer text-[#24211D] dark:text-[#F4F4F5]"
           >
             <div className="flex items-center gap-2.5">
               <div className={`w-8 h-8 rounded-xl ${iconBg} flex items-center justify-center transition-colors`}>
@@ -66,9 +70,9 @@ export function FloatingCartBar(): React.JSX.Element | null {
                 {!isCooking && !isReady && !isServed && !isPaid && <Clock className="w-4 h-4" />}
               </div>
               <div className="text-left">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#24211D]">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#24211D] dark:text-[#F4F4F5]">
                   <span>{bannerTitle}</span>
-                  <span className={`w-1.5 h-1.5 rounded-full ${isReady || isServed || isPaid ? 'bg-[#2F6B42]' : 'bg-[#B86B3E]'} animate-pulse`} />
+                  <span className={`w-1.5 h-1.5 rounded-full ${isReady || isServed || isPaid ? 'bg-[#2F6B42] dark:bg-[#34D399]' : 'bg-[#B86B3E] dark:bg-[#E07A43]'} animate-pulse`} />
                 </div>
                 <span className={`text-[11px] ${statusColor} font-bold flex items-center gap-1`}>
                   <Clock className="w-3 h-3" /> {language === 'en' ? 'Status' : language === 'kg' ? 'Статусу' : 'Статус'}:{' '}
@@ -77,9 +81,9 @@ export function FloatingCartBar(): React.JSX.Element | null {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 text-xs font-bold text-[#7E766D] group-hover:text-[#24211D]">
+            <div className="flex items-center gap-1 text-xs font-bold text-[#7E766D] dark:text-[#A1A1AA] group-hover:text-[#24211D] dark:group-hover:text-[#F4F4F5]">
               <span>{t('trackOrder')}</span>
-              <ChevronRight className="w-4 h-4 text-[#A8A095] group-hover:translate-x-0.5 transition-transform" />
+              <ChevronRight className="w-4 h-4 text-[#A8A095] dark:text-[#71717A] group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
         )}

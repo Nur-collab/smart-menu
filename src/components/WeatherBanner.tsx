@@ -58,22 +58,22 @@ export function WeatherBanner(): React.JSX.Element | null {
     language === 'en' ? 'Try: ' : language === 'kg' ? 'Даамын татыңыз: ' : 'Попробуйте: ';
 
   return (
-    <div className="mx-4 mt-3 max-w-4xl sm:mx-auto rounded-3xl bg-[#F4EBE2] border border-[#E5D7CA] p-4 shadow-[0_2px_12px_rgba(40,30,20,0.03)] relative overflow-hidden transition-all">
+    <div className="mx-4 mt-3 max-w-4xl sm:mx-auto rounded-3xl bg-[#F4EBE2] dark:bg-[#1C1815] border border-[#E5D7CA] dark:border-[#382D24] p-4 shadow-[0_2px_12px_rgba(40,30,20,0.03)] relative overflow-hidden transition-all">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
         <div className="flex-1">
           <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-[#B86B3E]">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#B86B3E] dark:text-[#E07A43]">
               {getWeatherIcon()}
               <span>{t('weatherRecommend')}</span>
             </div>
 
             {/* Компактный переключатель погоды */}
-            <div className="flex items-center bg-white/70 border border-[#E8DDD2] p-0.5 rounded-xl text-[10px]">
+            <div className="flex items-center bg-white/70 dark:bg-[#27201C] border border-[#E8DDD2] dark:border-[#3D3028] p-0.5 rounded-xl text-[10px]">
               <button
                 type="button"
                 onClick={() => setWeatherType('sunny')}
                 className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
-                  weatherType === 'sunny' ? 'bg-[#24211D] text-white' : 'text-[#7E766D]'
+                  weatherType === 'sunny' ? 'bg-[#24211D] dark:bg-[#F4F4F5] text-white dark:text-[#121214]' : 'text-[#7E766D] dark:text-[#A1A1AA]'
                 }`}
                 title={language === 'en' ? 'Sunny in Bishkek (+26°C)' : language === 'kg' ? 'Бишкекте ачык күн (+26°C)' : 'Солнечно в Бишкеке (+26°C)'}
               >
@@ -83,7 +83,7 @@ export function WeatherBanner(): React.JSX.Element | null {
                 type="button"
                 onClick={() => setWeatherType('rain')}
                 className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
-                  weatherType === 'rain' ? 'bg-[#24211D] text-white' : 'text-[#7E766D]'
+                  weatherType === 'rain' ? 'bg-[#24211D] dark:bg-[#F4F4F5] text-white dark:text-[#121214]' : 'text-[#7E766D] dark:text-[#A1A1AA]'
                 }`}
                 title={language === 'en' ? 'Rainy in Bishkek (+15°C)' : language === 'kg' ? 'Бишкекте жамгыр (+15°C)' : 'Дождь в Бишкеке (+15°C)'}
               >
@@ -93,7 +93,7 @@ export function WeatherBanner(): React.JSX.Element | null {
                 type="button"
                 onClick={() => setWeatherType('cold')}
                 className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
-                  weatherType === 'cold' ? 'bg-[#24211D] text-white' : 'text-[#7E766D]'
+                  weatherType === 'cold' ? 'bg-[#24211D] dark:bg-[#F4F4F5] text-white dark:text-[#121214]' : 'text-[#7E766D] dark:text-[#A1A1AA]'
                 }`}
                 title={language === 'en' ? 'Mountain breeze (+10°C)' : language === 'kg' ? 'Тоодон соккон жел (+10°C)' : 'Свежий горный бриз (+10°C)'}
               >
@@ -102,27 +102,27 @@ export function WeatherBanner(): React.JSX.Element | null {
             </div>
           </div>
 
-          <p className="text-[#4A433B] text-xs leading-relaxed">
+          <p className="text-[#4A433B] dark:text-[#D4C7B8] text-xs leading-relaxed">
             {getWeatherTitle()}{' '}
-            <strong className="text-[#24211D] font-bold block sm:inline mt-0.5 sm:mt-0">
+            <strong className="text-[#24211D] dark:text-[#F4F4F5] font-bold block sm:inline mt-0.5 sm:mt-0">
               {tryPrefix}{localizedDishName}!
             </strong>
           </p>
 
           <div className="flex items-center gap-2 mt-2">
-            <span className="text-sm font-black text-[#24211D]">
+            <span className="text-sm font-black text-[#24211D] dark:text-[#F4F4F5]">
               {priceInfo.currentPrice} {cafeInfo.currency}
             </span>
             {(priceInfo.isHappyHoursDiscount || weatherDish.oldPrice) && (
-              <span className="text-xs text-[#9E958A] line-through font-medium">
+              <span className="text-xs text-[#9E958A] dark:text-[#71717A] line-through font-medium">
                 {priceInfo.originalPrice} {cafeInfo.currency}
               </span>
             )}
-            <span className="text-[10px] bg-[#E8DDD2] text-[#8C5E3A] px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5">
-              <Flame className="w-2.5 h-2.5 text-[#B86B3E]" /> {t('badgeHit')}
+            <span className="text-[10px] bg-[#E8DDD2] dark:bg-[#2D231C] text-[#8C5E3A] dark:text-[#E07A43] px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5">
+              <Flame className="w-2.5 h-2.5 text-[#B86B3E] dark:text-[#E07A43]" /> {t('badgeHit')}
             </span>
             {priceInfo.isHappyHoursDiscount && (
-              <span className="text-[10px] bg-[#24211D] text-[#E39666] px-2 py-0.5 rounded-full font-bold">
+              <span className="text-[10px] bg-[#24211D] dark:bg-[#F4F4F5] text-[#E39666] dark:text-[#B86B3E] px-2 py-0.5 rounded-full font-bold">
                 🌙 -20%
               </span>
             )}

@@ -79,7 +79,7 @@ function MenuCatalogContent(): React.JSX.Element {
     : '';
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] text-[#24211D] flex flex-col font-sans pb-32">
+    <div className="min-h-screen bg-[#FBF9F5] dark:bg-[#121214] text-[#24211D] dark:text-[#F4F4F5] flex flex-col font-sans pb-32 transition-colors duration-200">
       {/* Шапка меню со статусом столика и кнопками сервиса */}
       <Header />
 
@@ -96,11 +96,11 @@ function MenuCatalogContent(): React.JSX.Element {
       <main className="max-w-4xl mx-auto px-4 mt-4 w-full flex-1">
         {searchQuery.trim().length === 0 && currentCategoryObj && (
           <div className="mb-3.5 flex items-center justify-between">
-            <h2 className="text-base font-black text-[#24211D] tracking-tight flex items-center gap-2">
-              <Utensils className="w-4 h-4 text-[#B86B3E]" />
+            <h2 className="text-base font-black text-[#24211D] dark:text-[#F4F4F5] tracking-tight flex items-center gap-2">
+              <Utensils className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
               <span>{currentCategoryName}</span>
             </h2>
-            <span className="text-xs text-[#8C7A6B] font-medium">
+            <span className="text-xs text-[#8C7A6B] dark:text-[#A1A1AA] font-medium">
               {filteredItems.length} {t('itemsCount')}
             </span>
           </div>
@@ -108,9 +108,9 @@ function MenuCatalogContent(): React.JSX.Element {
 
         {filteredItems.length === 0 ? (
           <div className="py-20 text-center space-y-3">
-            <SearchX className="w-12 h-12 text-[#C4B8A9] mx-auto" />
-            <h3 className="text-base font-bold text-[#24211D]">{t('nothingFound')}</h3>
-            <p className="text-xs text-[#7E766D] max-w-sm mx-auto">
+            <SearchX className="w-12 h-12 text-[#C4B8A9] dark:text-[#52525B] mx-auto" />
+            <h3 className="text-base font-bold text-[#24211D] dark:text-[#F4F4F5]">{t('nothingFound')}</h3>
+            <p className="text-xs text-[#7E766D] dark:text-[#A1A1AA] max-w-sm mx-auto">
               {t('nothingFoundDesc')}
             </p>
           </div>

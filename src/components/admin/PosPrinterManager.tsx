@@ -238,11 +238,11 @@ export function PosPrinterManager(): React.JSX.Element {
       {/* Шапка раздела */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-black text-[#24211D] flex items-center gap-2">
-            <Server className="w-4 h-4 text-[#B86B3E]" />
+          <h2 className="text-base font-black text-[#24211D] dark:text-[#F4F4F5] flex items-center gap-2">
+            <Server className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
             <span>Кассовые системы (POS) & Сетевая термопечать бегунков</span>
           </h2>
-          <p className="text-xs text-[#7E766D] mt-0.5">
+          <p className="text-xs text-[#7E766D] dark:text-[#A1A1AA] mt-0.5">
             Двусторонняя интеграция с iikoCloud, Poster POS, r-keeper и сетевыми принтерами ESC/POS (TCP 9100)
           </p>
         </div>
@@ -252,9 +252,9 @@ export function PosPrinterManager(): React.JSX.Element {
             type="button"
             onClick={handleSyncMenu}
             disabled={isSyncing}
-            className="bg-white hover:bg-[#F4EBE3] text-[#24211D] border border-[#EFE9E0] text-xs font-bold py-2 px-3.5 rounded-2xl flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+            className="bg-white dark:bg-[#18181B] hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] text-[#24211D] dark:text-[#F4F4F5] border border-[#EFE9E0] dark:border-[#27272A] text-xs font-bold py-2 px-3.5 rounded-2xl flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-[#B86B3E] ${isSyncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-[#B86B3E] dark:text-[#E07A43] ${isSyncing ? 'animate-spin' : ''}`} />
             <span>{isSyncing ? 'Синхронизация...' : 'Синхронизировать меню из кассы'}</span>
           </button>
         </div>
@@ -262,47 +262,47 @@ export function PosPrinterManager(): React.JSX.Element {
 
       {/* Панель статуса подключения */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-white border border-[#EFE9E0] p-4 rounded-3xl shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#EBF5ED] border border-[#2F6B42]/20 flex items-center justify-center text-[#2F6B42]">
+        <div className="bg-white dark:bg-[#18181B] border border-[#EFE9E0] dark:border-[#27272A] p-4 rounded-3xl shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-[#EBF5ED] dark:bg-[#062D15] border border-[#2F6B42]/20 dark:border-[#166534] flex items-center justify-center text-[#2F6B42] dark:text-[#4ADE80]">
             <Server className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] uppercase font-bold text-[#8C7A6B] block">Шлюз POS</span>
-            <strong className="text-sm font-black text-[#24211D] block">
+            <span className="text-[10px] uppercase font-bold text-[#8C7A6B] dark:text-[#A1A1AA] block">Шлюз POS</span>
+            <strong className="text-sm font-black text-[#24211D] dark:text-[#F4F4F5] block">
               {posConfig.provider.toUpperCase()} API
             </strong>
-            <span className="text-[10px] text-[#2F6B42] font-semibold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2F6B42] animate-pulse" />
+            <span className="text-[10px] text-[#2F6B42] dark:text-[#4ADE80] font-semibold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2F6B42] dark:bg-[#4ADE80] animate-pulse" />
               Подключено (Пинг 28мс)
             </span>
           </div>
         </div>
 
-        <div className="bg-white border border-[#EFE9E0] p-4 rounded-3xl shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#F4EBE3] border border-[#B86B3E]/20 flex items-center justify-center text-[#B86B3E]">
+        <div className="bg-white dark:bg-[#18181B] border border-[#EFE9E0] dark:border-[#27272A] p-4 rounded-3xl shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-[#F4EBE3] dark:bg-[#2C1810] border border-[#B86B3E]/20 dark:border-[#442316] flex items-center justify-center text-[#B86B3E] dark:text-[#E07A43]">
             <Printer className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] uppercase font-bold text-[#8C7A6B] block">Принтеры цехов</span>
-            <strong className="text-sm font-black text-[#24211D] block">
+            <span className="text-[10px] uppercase font-bold text-[#8C7A6B] dark:text-[#A1A1AA] block">Принтеры цехов</span>
+            <strong className="text-sm font-black text-[#24211D] dark:text-[#F4F4F5] block">
               {printers.filter((p) => p.isEnabled).length} активных
             </strong>
-            <span className="text-[10px] text-[#7E766D] font-medium">
+            <span className="text-[10px] text-[#7E766D] dark:text-[#A1A1AA] font-medium">
               ESC/POS порт 9100 (LAN)
             </span>
           </div>
         </div>
 
-        <div className="bg-white border border-[#EFE9E0] p-4 rounded-3xl shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#EDF3FA] border border-[#356BB3]/20 flex items-center justify-center text-[#356BB3]">
+        <div className="bg-white dark:bg-[#18181B] border border-[#EFE9E0] dark:border-[#27272A] p-4 rounded-3xl shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-[#EDF3FA] dark:bg-[#0C2238] border border-[#356BB3]/20 dark:border-[#1E3A5F] flex items-center justify-center text-[#356BB3] dark:text-[#60A5FA]">
             <Zap className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] uppercase font-bold text-[#8C7A6B] block">Автопроброс</span>
-            <strong className="text-sm font-black text-[#24211D] block">
+            <span className="text-[10px] uppercase font-bold text-[#8C7A6B] dark:text-[#A1A1AA] block">Автопроброс</span>
+            <strong className="text-sm font-black text-[#24211D] dark:text-[#F4F4F5] block">
               {posConfig.autoSendOrders ? 'ВКЛЮЧЕН' : 'РУЧНОЙ'}
             </strong>
-            <span className="text-[10px] text-[#7E766D] font-medium">
+            <span className="text-[10px] text-[#7E766D] dark:text-[#A1A1AA] font-medium">
               Списание по техкартам
             </span>
           </div>
@@ -310,14 +310,14 @@ export function PosPrinterManager(): React.JSX.Element {
       </div>
 
       {/* Настройка кассовой системы */}
-      <div className="bg-white border border-[#EFE9E0] rounded-3xl p-5 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-[#EFE9E0] pb-3">
-          <h3 className="text-xs font-bold text-[#8C7A6B] uppercase tracking-wider flex items-center gap-1.5">
-            <Settings2 className="w-4 h-4 text-[#B86B3E]" />
+      <div className="bg-white dark:bg-[#18181B] border border-[#EFE9E0] dark:border-[#27272A] rounded-3xl p-5 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-[#EFE9E0] dark:border-[#27272A] pb-3">
+          <h3 className="text-xs font-bold text-[#8C7A6B] dark:text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
+            <Settings2 className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
             <span>Настройка провайдера кассы (POS)</span>
           </h3>
           {saveSuccess && (
-            <span className="text-xs text-[#2F6B42] font-bold flex items-center gap-1 animate-fadeIn">
+            <span className="text-xs text-[#2F6B42] dark:text-[#4ADE80] font-bold flex items-center gap-1 animate-fadeIn">
               <CheckCircle2 className="w-3.5 h-3.5" /> Настройки сохранены!
             </span>
           )}
@@ -341,19 +341,19 @@ export function PosPrinterManager(): React.JSX.Element {
               }
               className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                 posConfig.provider === item.id
-                  ? 'bg-[#F4EBE3] border-[#B86B3E] shadow-sm'
-                  : 'bg-[#FBF9F5] border-[#EFE9E0] hover:border-[#DFD5C7]'
+                  ? 'bg-[#F4EBE3] dark:bg-[#2C1810] border-[#B86B3E] dark:border-[#E07A43] shadow-sm'
+                  : 'bg-[#FBF9F5] dark:bg-[#27272A]/50 border-[#EFE9E0] dark:border-[#3F3F46] hover:border-[#DFD5C7]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-[#24211D]">{item.title}</span>
+                <span className="font-bold text-xs text-[#24211D] dark:text-[#F4F4F5]">{item.title}</span>
                 <Radio
                   className={`w-3.5 h-3.5 ${
-                    posConfig.provider === item.id ? 'text-[#B86B3E]' : 'text-[#A8A095]'
+                    posConfig.provider === item.id ? 'text-[#B86B3E] dark:text-[#E07A43]' : 'text-[#A8A095] dark:text-[#71717A]'
                   }`}
                 />
               </div>
-              <span className="text-[10px] text-[#7E766D] mt-0.5 block">{item.desc}</span>
+              <span className="text-[10px] text-[#7E766D] dark:text-[#A1A1AA] mt-0.5 block">{item.desc}</span>
             </button>
           ))}
         </div>
@@ -361,53 +361,53 @@ export function PosPrinterManager(): React.JSX.Element {
         {/* Параметры подключения */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div>
-            <label className="text-[11px] font-bold text-[#8C7A6B] block mb-1">
+            <label className="text-[11px] font-bold text-[#8C7A6B] dark:text-[#A1A1AA] block mb-1">
               API Server URL
             </label>
             <input
               type="text"
               value={posConfig.apiUrl}
               onChange={(e) => setPosConfig({ ...posConfig, apiUrl: e.target.value })}
-              className="w-full bg-[#FBF9F5] border border-[#EFE9E0] rounded-xl px-3 py-2 text-xs text-[#24211D] outline-none focus:border-[#B86B3E]"
+              className="w-full bg-[#FBF9F5] dark:bg-[#27272A] border border-[#EFE9E0] dark:border-[#3F3F46] rounded-xl px-3 py-2 text-xs text-[#24211D] dark:text-[#F4F4F5] outline-none focus:border-[#B86B3E] dark:focus:border-[#E07A43]"
               placeholder="https://api-ru.iiko.services"
             />
           </div>
 
           <div>
-            <label className="text-[11px] font-bold text-[#8C7A6B] block mb-1">
+            <label className="text-[11px] font-bold text-[#8C7A6B] dark:text-[#A1A1AA] block mb-1">
               API Key / Токен авторизации
             </label>
             <input
               type="password"
               value={posConfig.apiKey}
               onChange={(e) => setPosConfig({ ...posConfig, apiKey: e.target.value })}
-              className="w-full bg-[#FBF9F5] border border-[#EFE9E0] rounded-xl px-3 py-2 text-xs text-[#24211D] outline-none focus:border-[#B86B3E]"
+              className="w-full bg-[#FBF9F5] dark:bg-[#27272A] border border-[#EFE9E0] dark:border-[#3F3F46] rounded-xl px-3 py-2 text-xs text-[#24211D] dark:text-[#F4F4F5] outline-none focus:border-[#B86B3E] dark:focus:border-[#E07A43]"
               placeholder="••••••••••••••••••••••••"
             />
           </div>
 
           <div>
-            <label className="text-[11px] font-bold text-[#8C7A6B] block mb-1">
+            <label className="text-[11px] font-bold text-[#8C7A6B] dark:text-[#A1A1AA] block mb-1">
               Organization ID (Торговая точка)
             </label>
             <input
               type="text"
               value={posConfig.organizationId}
               onChange={(e) => setPosConfig({ ...posConfig, organizationId: e.target.value })}
-              className="w-full bg-[#FBF9F5] border border-[#EFE9E0] rounded-xl px-3 py-2 text-xs text-[#24211D] outline-none focus:border-[#B86B3E]"
+              className="w-full bg-[#FBF9F5] dark:bg-[#27272A] border border-[#EFE9E0] dark:border-[#3F3F46] rounded-xl px-3 py-2 text-xs text-[#24211D] dark:text-[#F4F4F5] outline-none focus:border-[#B86B3E] dark:focus:border-[#E07A43]"
               placeholder="org-aura-cafe-kg-001"
             />
           </div>
 
           <div>
-            <label className="text-[11px] font-bold text-[#8C7A6B] block mb-1">
+            <label className="text-[11px] font-bold text-[#8C7A6B] dark:text-[#A1A1AA] block mb-1">
               Terminal Group ID (Терминал кухни)
             </label>
             <input
               type="text"
               value={posConfig.terminalGroupId}
               onChange={(e) => setPosConfig({ ...posConfig, terminalGroupId: e.target.value })}
-              className="w-full bg-[#FBF9F5] border border-[#EFE9E0] rounded-xl px-3 py-2 text-xs text-[#24211D] outline-none focus:border-[#B86B3E]"
+              className="w-full bg-[#FBF9F5] dark:bg-[#27272A] border border-[#EFE9E0] dark:border-[#3F3F46] rounded-xl px-3 py-2 text-xs text-[#24211D] dark:text-[#F4F4F5] outline-none focus:border-[#B86B3E] dark:focus:border-[#E07A43]"
               placeholder="tg-kitchen-01"
             />
           </div>
@@ -415,7 +415,7 @@ export function PosPrinterManager(): React.JSX.Element {
 
         {/* Чекбоксы автоматизации */}
         <div className="flex flex-col sm:flex-row gap-4 pt-1">
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#24211D]">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#24211D] dark:text-[#F4F4F5]">
             <input
               type="checkbox"
               checked={posConfig.autoSendOrders}
@@ -427,7 +427,7 @@ export function PosPrinterManager(): React.JSX.Element {
             <span>Автоматически пробрасывать новые заказы со столиков в кассу</span>
           </label>
 
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#24211D]">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#24211D] dark:text-[#F4F4F5]">
             <input
               type="checkbox"
               checked={posConfig.autoSyncStopList}
@@ -454,14 +454,14 @@ export function PosPrinterManager(): React.JSX.Element {
       </div>
 
       {/* Оборудование: Термопринтеры кухни (ESC/POS) */}
-      <div className="bg-white border border-[#EFE9E0] rounded-3xl p-5 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-[#EFE9E0] pb-3">
+      <div className="bg-white dark:bg-[#18181B] border border-[#EFE9E0] dark:border-[#27272A] rounded-3xl p-5 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-[#EFE9E0] dark:border-[#27272A] pb-3">
           <div>
-            <h3 className="text-xs font-bold text-[#8C7A6B] uppercase tracking-wider flex items-center gap-1.5">
-              <Printer className="w-4 h-4 text-[#B86B3E]" />
+            <h3 className="text-xs font-bold text-[#8C7A6B] dark:text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
+              <Printer className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
               <span>Сетевые термопринтеры бегунков кухни (ESC/POS)</span>
             </h3>
-            <p className="text-[11px] text-[#7E766D] mt-0.5">
+            <p className="text-[11px] text-[#7E766D] dark:text-[#A1A1AA] mt-0.5">
               Прямая печать через сокет TCP/IP (порт 9100) на термоленту 80мм / 58мм
             </p>
           </div>
@@ -481,16 +481,16 @@ export function PosPrinterManager(): React.JSX.Element {
           {printers.map((prn) => (
             <div
               key={prn.id}
-              className="bg-[#FBF9F5] border border-[#EFE9E0] rounded-2xl p-4 space-y-3"
+              className="bg-[#FBF9F5] dark:bg-[#1C1C1F] border border-[#EFE9E0] dark:border-[#27272A] rounded-2xl p-4 space-y-3"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-white border border-[#EFE9E0] flex items-center justify-center text-[#B86B3E]">
+                  <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#27272A] border border-[#EFE9E0] dark:border-[#3F3F46] flex items-center justify-center text-[#B86B3E] dark:text-[#E07A43]">
                     <Printer className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-[#24211D]">{prn.name}</h4>
-                    <span className="text-[10px] text-[#7E766D] font-mono">
+                    <h4 className="text-xs font-bold text-[#24211D] dark:text-[#F4F4F5]">{prn.name}</h4>
+                    <span className="text-[10px] text-[#7E766D] dark:text-[#A1A1AA] font-mono">
                       {prn.ipAddress}:{prn.port}
                     </span>
                   </div>
@@ -499,28 +499,28 @@ export function PosPrinterManager(): React.JSX.Element {
                 <span
                   className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                     prn.isEnabled
-                      ? 'bg-[#EBF5ED] text-[#2F6B42]'
-                      : 'bg-[#F4EBE3] text-[#7E766D]'
+                      ? 'bg-[#EBF5ED] dark:bg-[#062D15] text-[#2F6B42] dark:text-[#4ADE80]'
+                      : 'bg-[#F4EBE3] dark:bg-[#27272A] text-[#7E766D] dark:text-[#A1A1AA]'
                   }`}
                 >
                   {prn.isEnabled ? 'Активен' : 'Отключен'}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-[10px] text-[#7E766D] bg-white p-2 rounded-xl border border-[#EFE9E0]">
+              <div className="grid grid-cols-3 gap-2 text-[10px] text-[#7E766D] dark:text-[#A1A1AA] bg-white dark:bg-[#27272A] p-2 rounded-xl border border-[#EFE9E0] dark:border-[#3F3F46]">
                 <div>
-                  <span className="block text-[#A8A095]">Ширина ленты</span>
-                  <span className="font-bold text-[#24211D]">{prn.paperWidth}</span>
+                  <span className="block text-[#A8A095] dark:text-[#71717A]">Ширина ленты</span>
+                  <span className="font-bold text-[#24211D] dark:text-[#F4F4F5]">{prn.paperWidth}</span>
                 </div>
                 <div>
-                  <span className="block text-[#A8A095]">Автоотрезка</span>
-                  <span className="font-bold text-[#24211D]">
+                  <span className="block text-[#A8A095] dark:text-[#71717A]">Автоотрезка</span>
+                  <span className="font-bold text-[#24211D] dark:text-[#F4F4F5]">
                     {prn.autoCut ? 'Включена' : 'Нет'}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[#A8A095]">Цех</span>
-                  <span className="font-bold text-[#24211D]">
+                  <span className="block text-[#A8A095] dark:text-[#71717A]">Цех</span>
+                  <span className="font-bold text-[#24211D] dark:text-[#F4F4F5]">
                     {prn.department === 'kitchen' ? 'Кухня' : 'Бар'}
                   </span>
                 </div>
@@ -531,9 +531,9 @@ export function PosPrinterManager(): React.JSX.Element {
                   type="button"
                   onClick={() => handleTestPrint(prn.id)}
                   disabled={isPrinting}
-                  className="text-[11px] font-bold text-[#B86B3E] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-[11px] font-bold text-[#B86B3E] dark:text-[#E07A43] hover:underline flex items-center gap-1 cursor-pointer"
                 >
-                  <Play className="w-3 h-3 fill-[#B86B3E]" />
+                  <Play className="w-3 h-3 fill-[#B86B3E] dark:fill-[#E07A43]" />
                   <span>Проверить печать</span>
                 </button>
               </div>
@@ -543,16 +543,16 @@ export function PosPrinterManager(): React.JSX.Element {
 
         {/* Визуальное превью напечатанной термо-ленты */}
         {ticketPreview && (
-          <div className="mt-4 p-4 bg-[#24211D] text-[#FBF9F5] rounded-2xl shadow-inner font-mono text-xs space-y-2 animate-fadeIn">
+          <div className="mt-4 p-4 bg-[#24211D] dark:bg-[#121214] text-[#FBF9F5] rounded-2xl shadow-inner font-mono text-xs space-y-2 border border-white/10 dark:border-white/5 animate-fadeIn">
             <div className="flex items-center justify-between text-[10px] text-[#A8A095] border-b border-white/10 pb-2">
               <span className="flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-[#2F6B42]" />
+                <CheckCircle2 className="w-3 h-3 text-[#2F6B42] dark:text-[#4ADE80]" />
                 <span>Эмулятор термопринтера (Предпросмотр чека-бегунка кухни)</span>
               </span>
               <button
                 type="button"
                 onClick={() => setTicketPreview(null)}
-                className="hover:text-white"
+                className="hover:text-white cursor-pointer"
               >
                 Закрыть превью ✕
               </button>
@@ -565,16 +565,16 @@ export function PosPrinterManager(): React.JSX.Element {
       </div>
 
       {/* Журнал событий синхронизации (Logs) */}
-      <div className="bg-white border border-[#EFE9E0] rounded-3xl p-5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between border-b border-[#EFE9E0] pb-3">
-          <h3 className="text-xs font-bold text-[#8C7A6B] uppercase tracking-wider flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-[#B86B3E]" />
+      <div className="bg-white dark:bg-[#18181B] border border-[#EFE9E0] dark:border-[#27272A] rounded-3xl p-5 shadow-sm space-y-3">
+        <div className="flex items-center justify-between border-b border-[#EFE9E0] dark:border-[#27272A] pb-3">
+          <h3 className="text-xs font-bold text-[#8C7A6B] dark:text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
             <span>Журнал синхронизации с кассой и принтерами ({logs.length})</span>
           </h3>
           <button
             type="button"
             onClick={refreshData}
-            className="text-[11px] font-bold text-[#7E766D] hover:text-[#24211D] flex items-center gap-1 cursor-pointer"
+            className="text-[11px] font-bold text-[#7E766D] dark:text-[#A1A1AA] hover:text-[#24211D] dark:hover:text-[#F4F4F5] flex items-center gap-1 cursor-pointer"
           >
             <RefreshCw className="w-3 h-3" />
             <span>Обновить лог</span>
@@ -582,7 +582,7 @@ export function PosPrinterManager(): React.JSX.Element {
         </div>
 
         {logs.length === 0 ? (
-          <div className="py-8 text-center text-xs text-[#7E766D]">
+          <div className="py-8 text-center text-xs text-[#7E766D] dark:text-[#A1A1AA]">
             Событий интеграции пока нет. Они появятся при оформлении заказов и печати.
           </div>
         ) : (
@@ -590,27 +590,27 @@ export function PosPrinterManager(): React.JSX.Element {
             {logs.map((log) => (
               <div
                 key={log.id}
-                className="bg-[#FBF9F5] border border-[#EFE9E0] rounded-xl p-3 text-xs flex items-start justify-between gap-3"
+                className="bg-[#FBF9F5] dark:bg-[#1C1C1F] border border-[#EFE9E0] dark:border-[#27272A] rounded-xl p-3 text-xs flex items-start justify-between gap-3"
               >
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
                     {log.status === 'success' && (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#2F6B42] shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#2F6B42] dark:text-[#4ADE80] shrink-0" />
                     )}
                     {log.status === 'warning' && (
                       <AlertTriangle className="w-3.5 h-3.5 text-[#E5A93C] shrink-0" />
                     )}
                     {log.status === 'error' && (
-                      <AlertTriangle className="w-3.5 h-3.5 text-[#B83A4A] shrink-0" />
+                      <AlertTriangle className="w-3.5 h-3.5 text-[#B83A4A] dark:text-[#F87171] shrink-0" />
                     )}
-                    <span className="font-bold text-[#24211D]">{log.message}</span>
+                    <span className="font-bold text-[#24211D] dark:text-[#F4F4F5]">{log.message}</span>
                   </div>
                   {log.details && (
-                    <p className="text-[10px] text-[#7E766D] pl-5.5 font-mono">{log.details}</p>
+                    <p className="text-[10px] text-[#7E766D] dark:text-[#A1A1AA] pl-5.5 font-mono">{log.details}</p>
                   )}
                 </div>
 
-                <span className="text-[10px] font-mono text-[#A8A095] shrink-0">
+                <span className="text-[10px] font-mono text-[#A8A095] dark:text-[#71717A] shrink-0">
                   {new Date(log.timestamp).toLocaleTimeString('ru-RU')}
                 </span>
               </div>

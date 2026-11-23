@@ -21,19 +21,19 @@ export function SearchBar(): React.JSX.Element {
     <div className="px-4 mt-3 max-w-4xl mx-auto space-y-2.5">
       {/* Поле поиска */}
       <div className="relative">
-        <Search className="w-4 h-4 text-[#A8A095] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <Search className="w-4 h-4 text-[#A8A095] dark:text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={t('searchPlaceholder')}
-          className="w-full bg-white border border-[#EFE9E0] rounded-2xl pl-10 pr-9 py-2.5 text-xs sm:text-sm text-[#24211D] placeholder-[#A8A095] outline-none focus:border-[#B86B3E] focus:ring-1 focus:ring-[#B86B3E]/30 transition-all shadow-[0_1px_4px_rgba(40,30,20,0.02)]"
+          className="w-full bg-white dark:bg-[#18181B] border border-[#EFE9E0] dark:border-[#27272A] rounded-2xl pl-10 pr-9 py-2.5 text-xs sm:text-sm text-[#24211D] dark:text-[#F4F4F5] placeholder-[#A8A095] dark:placeholder-[#71717A] outline-none focus:border-[#B86B3E] dark:focus:border-[#E07A43] focus:ring-1 focus:ring-[#B86B3E]/30 transition-all shadow-[0_1px_4px_rgba(40,30,20,0.02)]"
         />
         {searchQuery.length > 0 && (
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A8A095] hover:text-[#24211D] p-0.5 cursor-pointer"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A8A095] dark:text-[#71717A] hover:text-[#24211D] dark:hover:text-[#F4F4F5] p-0.5 cursor-pointer"
             title="Очистить поиск"
           >
             <X className="w-4 h-4" />
@@ -61,7 +61,7 @@ export function SearchBar(): React.JSX.Element {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                 isActive
                   ? 'bg-[#B86B3E] text-white font-semibold shadow-sm'
-                  : 'bg-white text-[#7E766D] hover:text-[#24211D] hover:bg-[#F4EBE3] border border-[#EFE9E0]'
+                  : 'bg-white dark:bg-[#18181B] text-[#7E766D] dark:text-[#A1A1AA] hover:text-[#24211D] dark:hover:text-[#F4F4F5] hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] border border-[#EFE9E0] dark:border-[#27272A]'
               }`}
             >
               {pill.icon}

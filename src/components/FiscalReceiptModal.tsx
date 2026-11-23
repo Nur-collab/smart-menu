@@ -78,17 +78,17 @@ export function FiscalReceiptModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 bg-[#24211D]/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-[#FBF9F5] border border-[#EFE9E0] rounded-3xl p-6 shadow-2xl space-y-4 max-h-[94vh] overflow-y-auto animate-scaleUp relative print:shadow-none print:border-none print:p-0 print:m-0"
+        className="w-full max-w-md bg-[#FBF9F5] dark:bg-[#18181B] border border-[#EFE9E0] dark:border-[#27272A] rounded-3xl p-6 shadow-2xl space-y-4 max-h-[94vh] overflow-y-auto animate-scaleUp relative print:shadow-none print:border-none print:p-0 print:m-0 text-[#24211D] dark:text-[#F4F4F5]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 text-[#A8A095] hover:text-[#24211D] transition-colors print:hidden"
+          className="absolute top-4 right-4 p-1.5 text-[#A8A095] dark:text-[#71717A] hover:text-[#24211D] dark:hover:text-[#F4F4F5] transition-colors print:hidden cursor-pointer"
           title="Закрыть"
         >
           <X className="w-5 h-5" />
@@ -96,50 +96,50 @@ export function FiscalReceiptModal({
 
         {/* Заголовок модального окна */}
         <div className="print:hidden">
-          <div className="flex items-center gap-1.5 text-[#2F6B42] text-[10px] font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4 text-[#2F6B42]" />
+          <div className="flex items-center gap-1.5 text-[#2F6B42] dark:text-[#34D399] text-[10px] font-bold uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-[#2F6B42] dark:text-[#34D399]" />
             <span>{t('fiscalSalykNotice')}</span>
           </div>
-          <h3 className="text-base font-black text-[#24211D] mt-0.5">
+          <h3 className="text-base font-black text-[#24211D] dark:text-[#F4F4F5] mt-0.5">
             {t('fiscalReceiptTitle')}
           </h3>
         </div>
 
         {isLoading ? (
-          <div className="h-64 flex flex-col items-center justify-center gap-2 text-xs text-[#7E766D]">
-            <Clock className="w-6 h-6 animate-spin text-[#B86B3E]" />
+          <div className="h-64 flex flex-col items-center justify-center gap-2 text-xs text-[#7E766D] dark:text-[#A1A1AA]">
+            <Clock className="w-6 h-6 animate-spin text-[#B86B3E] dark:text-[#E07A43]" />
             <span>Загрузка фискального документа...</span>
           </div>
         ) : receipt ? (
           <div className="space-y-4">
             {/* Бумажный фискальный чек в термо-стиле */}
-            <div className="bg-white border border-[#EFE9E0] rounded-2xl p-5 shadow-sm font-mono text-xs text-[#24211D] space-y-3 relative overflow-hidden">
+            <div className="bg-white dark:bg-[#1C1C1F] border border-[#EFE9E0] dark:border-[#27272A] rounded-2xl p-5 shadow-sm font-mono text-xs text-[#24211D] dark:text-[#F4F4F5] space-y-3 relative overflow-hidden">
               {/* Шапка чека */}
-              <div className="text-center pb-3 border-b border-dashed border-[#DFD5C7] space-y-1">
-                <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#B86B3E]">
+              <div className="text-center pb-3 border-b border-dashed border-[#DFD5C7] dark:border-[#3F3F46] space-y-1">
+                <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#B86B3E] dark:text-[#E07A43]">
                   <Building2 className="w-3.5 h-3.5" />
                   <span>{receipt.companyName}</span>
                 </div>
-                <div className="text-[10px] text-[#7E766D]">
+                <div className="text-[10px] text-[#7E766D] dark:text-[#A1A1AA]">
                   г. Бишкек, бул. Эркиндик 35 • Ресторан Aura
                 </div>
-                <div className="text-[10px] font-bold text-[#24211D] pt-1">
+                <div className="text-[10px] font-bold text-[#24211D] dark:text-[#F4F4F5] pt-1">
                   ИНН: {receipt.tin}
                 </div>
-                <div className="text-[9px] text-[#7E766D]">
+                <div className="text-[9px] text-[#7E766D] dark:text-[#A1A1AA]">
                   РН ККМ: {receipt.kkmRegNumber} | ЗН ФМ: {receipt.fiscalModuleNumber}
                 </div>
               </div>
 
               {/* Метаданные документа */}
-              <div className="space-y-1 text-[10px] text-[#7E766D] border-b border-dashed border-[#DFD5C7] pb-2">
+              <div className="space-y-1 text-[10px] text-[#7E766D] dark:text-[#A1A1AA] border-b border-dashed border-[#DFD5C7] dark:border-[#3F3F46] pb-2">
                 <div className="flex justify-between">
                   <span>ФИСКАЛЬНЫЙ ЧЕК:</span>
-                  <span className="font-bold text-[#24211D]">№ФД-{receipt.fiscalDocNumber}</span>
+                  <span className="font-bold text-[#24211D] dark:text-[#F4F4F5]">№ФД-{receipt.fiscalDocNumber}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>ФПД (Признак документа):</span>
-                  <span className="font-bold text-[#24211D]">{receipt.fiscalSign}</span>
+                  <span className="font-bold text-[#24211D] dark:text-[#F4F4F5]">{receipt.fiscalSign}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Смена / Кассир:</span>
@@ -157,17 +157,17 @@ export function FiscalReceiptModal({
 
               {/* Позиции заказа */}
               <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                <div className="text-[10px] font-bold uppercase text-[#8C7A6B] flex justify-between">
+                <div className="text-[10px] font-bold uppercase text-[#8C7A6B] dark:text-[#A1A1AA] flex justify-between">
                   <span>Наименование</span>
                   <span>Сумма</span>
                 </div>
                 {receipt.items.map((item) => (
                   <div key={item.id} className="text-[11px] space-y-0.5">
-                    <div className="flex justify-between font-medium text-[#24211D]">
+                    <div className="flex justify-between font-medium text-[#24211D] dark:text-[#F4F4F5]">
                       <span className="truncate pr-2">{item.name}</span>
                       <span className="shrink-0">{item.total.toFixed(2)} с</span>
                     </div>
-                    <div className="flex justify-between text-[9px] text-[#7E766D]">
+                    <div className="flex justify-between text-[9px] text-[#7E766D] dark:text-[#A1A1AA]">
                       <span>
                         {item.quantity} × {item.price.toFixed(2)} с (НСП {item.taxPercent}%)
                       </span>
@@ -178,36 +178,36 @@ export function FiscalReceiptModal({
               </div>
 
               {/* Итоговый расчет налогов и скидок */}
-              <div className="border-t border-dashed border-[#DFD5C7] pt-2 space-y-1 text-[11px]">
+              <div className="border-t border-dashed border-[#DFD5C7] dark:border-[#3F3F46] pt-2 space-y-1 text-[11px]">
                 {receipt.discountAmount > 0 && (
-                  <div className="flex justify-between text-[#B86B3E]">
+                  <div className="flex justify-between text-[#B86B3E] dark:text-[#E07A43]">
                     <span>Скидка бонусами:</span>
                     <span>-{receipt.discountAmount.toFixed(2)} с</span>
                   </div>
                 )}
                 {receipt.tipAmount > 0 && (
-                  <div className="flex justify-between text-[#7E766D]">
+                  <div className="flex justify-between text-[#7E766D] dark:text-[#A1A1AA]">
                     <span>Чаевые персоналу:</span>
                     <span>+{receipt.tipAmount.toFixed(2)} с</span>
                   </div>
                 )}
-                <div className="flex justify-between text-[10px] text-[#7E766D]">
+                <div className="flex justify-between text-[10px] text-[#7E766D] dark:text-[#A1A1AA]">
                   <span>В том числе НСП (2%):</span>
                   <span>{receipt.taxTotalNsp.toFixed(2)} с</span>
                 </div>
-                <div className="flex justify-between text-sm font-black text-[#24211D] pt-1 border-t border-[#EFE9E0]">
+                <div className="flex justify-between text-sm font-black text-[#24211D] dark:text-[#F4F4F5] pt-1 border-t border-[#EFE9E0] dark:border-[#27272A]">
                   <span>ИТОГО К ОПЛАТЕ:</span>
-                  <span className="text-[#B86B3E]">{receipt.totalAmount.toFixed(2)} с</span>
+                  <span className="text-[#B86B3E] dark:text-[#E07A43]">{receipt.totalAmount.toFixed(2)} с</span>
                 </div>
-                <div className="flex justify-between text-[10px] text-[#2F6B42] font-bold">
+                <div className="flex justify-between text-[10px] text-[#2F6B42] dark:text-[#34D399] font-bold">
                   <span>ОПЛАЧЕНО (БЕЗНАЛИЧНЫЙ):</span>
                   <span>{receipt.totalAmount.toFixed(2)} с</span>
                 </div>
               </div>
 
               {/* QR-код верификации ГНС КР */}
-              <div className="border-t border-dashed border-[#DFD5C7] pt-3 text-center space-y-2">
-                <div className="mx-auto w-24 h-24 bg-[#FBF9F5] border border-[#E8DDD2] rounded-xl p-1.5 flex items-center justify-center">
+              <div className="border-t border-dashed border-[#DFD5C7] dark:border-[#3F3F46] pt-3 text-center space-y-2">
+                <div className="mx-auto w-24 h-24 bg-white border border-[#E8DDD2] rounded-xl p-1.5 flex items-center justify-center">
                   <img
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(
                       receipt.verificationUrl
@@ -216,14 +216,14 @@ export function FiscalReceiptModal({
                     className="w-20 h-20 object-contain rounded"
                   />
                 </div>
-                <p className="text-[9px] text-[#7E766D] leading-tight">
+                <p className="text-[9px] text-[#7E766D] dark:text-[#A1A1AA] leading-tight">
                   Проверка подлинности чека на портале ГНС КР salyk.kg
                 </p>
                 <a
                   href={receipt.verificationUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[10px] font-bold text-[#2F6B42] hover:underline"
+                  className="inline-flex items-center gap-1 text-[10px] font-bold text-[#2F6B42] dark:text-[#34D399] hover:underline"
                 >
                   <span>Проверить чек онлайн</span>
                   <ExternalLink className="w-3 h-3" />
@@ -247,9 +247,9 @@ export function FiscalReceiptModal({
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="bg-white hover:bg-[#F4EBE3] text-[#24211D] border border-[#EFE9E0] text-xs font-bold py-2.5 px-3 rounded-2xl flex items-center justify-center gap-2 transition-all"
+                  className="bg-white dark:bg-[#1C1C1F] hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] text-[#24211D] dark:text-[#F4F4F5] border border-[#EFE9E0] dark:border-[#27272A] text-xs font-bold py-2.5 px-3 rounded-2xl flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <Printer className="w-4 h-4 text-[#7E766D]" />
+                  <Printer className="w-4 h-4 text-[#7E766D] dark:text-[#A1A1AA]" />
                   <span>Печать чека</span>
                 </button>
               </div>
@@ -265,7 +265,7 @@ export function FiscalReceiptModal({
             </div>
           </div>
         ) : (
-          <div className="text-center py-8 text-xs text-[#7E766D]">
+          <div className="text-center py-8 text-xs text-[#7E766D] dark:text-[#A1A1AA]">
             {language === 'en' ? 'Receipt is generated upon order payment completion.' : language === 'kg' ? 'Чек буйрутма төлөнгөндөн кийин чыгарылат.' : 'Чек формируется после завершения оплаты заказа.'}
           </div>
         )}

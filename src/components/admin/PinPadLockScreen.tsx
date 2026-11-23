@@ -101,19 +101,19 @@ export function PinPadLockScreen({
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] text-[#24211D] flex flex-col justify-between p-4 sm:p-6 font-sans select-none">
+    <div className="min-h-screen bg-[#FBF9F5] dark:bg-[#121214] text-[#24211D] dark:text-[#F4F4F5] flex flex-col justify-between p-4 sm:p-6 font-sans select-none transition-colors duration-200">
       {/* Верхний бар с кнопкой выхода в зал */}
       <header className="max-w-md w-full mx-auto flex items-center justify-between">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#EFE9E0] text-[#7E766D] hover:text-[#24211D] rounded-2xl text-xs font-bold transition-all shadow-sm hover:border-[#DFD5C7]"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#1C1C1F] border border-[#EFE9E0] dark:border-[#27272A] text-[#7E766D] dark:text-[#A1A1AA] hover:text-[#24211D] dark:hover:text-[#F4F4F5] rounded-2xl text-xs font-bold transition-all shadow-sm hover:border-[#DFD5C7] dark:hover:border-[#3F3F46]"
         >
-          <ArrowLeft className="w-3.5 h-3.5 text-[#B86B3E]" />
+          <ArrowLeft className="w-3.5 h-3.5 text-[#B86B3E] dark:text-[#E07A43]" />
           <span>В меню зала</span>
         </Link>
 
-        <div className="flex items-center gap-1.5 text-[11px] text-[#8C7A6B] font-semibold bg-[#F4EBE3] px-3 py-1 rounded-full border border-[#E8DDD2]">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#B86B3E]" />
+        <div className="flex items-center gap-1.5 text-[11px] text-[#8C7A6B] dark:text-[#A8988B] font-semibold bg-[#F4EBE3] dark:bg-[#27201C] px-3 py-1 rounded-full border border-[#E8DDD2] dark:border-[#3D3028]">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#B86B3E] dark:text-[#E07A43]" />
           <span>Staff Shield v2.0</span>
         </div>
       </header>
@@ -121,13 +121,13 @@ export function PinPadLockScreen({
       {/* Центральный терминал ввода PIN */}
       <main className="max-w-sm w-full mx-auto my-auto space-y-6">
         <div className="text-center space-y-1.5">
-          <div className="w-14 h-14 rounded-3xl bg-[#F4EBE3] border border-[#E8DDD2] text-[#B86B3E] flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-14 h-14 rounded-3xl bg-[#F4EBE3] dark:bg-[#27201C] border border-[#E8DDD2] dark:border-[#3D3028] text-[#B86B3E] dark:text-[#E07A43] flex items-center justify-center mx-auto shadow-sm">
             <Lock className="w-6 h-6 stroke-[2.2]" />
           </div>
-          <h1 className="text-lg font-black text-[#24211D]">
+          <h1 className="text-lg font-black text-[#24211D] dark:text-[#F4F4F5]">
             Терминал персонала
           </h1>
-          <p className="text-xs text-[#7E766D]">
+          <p className="text-xs text-[#7E766D] dark:text-[#A1A1AA]">
             {cafeName} • Введите персональный 4-значный PIN
           </p>
         </div>
@@ -148,8 +148,8 @@ export function PinPadLockScreen({
                     filled
                       ? isError
                         ? 'bg-[#B83A4A] border-[#B83A4A] scale-110'
-                        : 'bg-[#B86B3E] border-[#B86B3E] scale-110 shadow-sm'
-                      : 'border-[#DFD5C7] bg-white'
+                        : 'bg-[#B86B3E] dark:bg-[#E07A43] border-[#B86B3E] dark:border-[#E07A43] scale-110 shadow-sm'
+                      : 'border-[#DFD5C7] dark:border-[#3F3F46] bg-white dark:bg-[#1C1C1F]'
                   }`}
                 />
               );
@@ -171,7 +171,7 @@ export function PinPadLockScreen({
               key={digit}
               type="button"
               onClick={() => handleDigitPress(digit)}
-              className="h-16 rounded-2xl bg-white hover:bg-[#F4EBE3] active:scale-95 border border-[#EFE9E0] text-xl font-black text-[#24211D] shadow-[0_2px_8px_rgba(40,30,20,0.03)] transition-all flex items-center justify-center cursor-pointer"
+              className="h-16 rounded-2xl bg-white dark:bg-[#1C1C1F] hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] active:scale-95 border border-[#EFE9E0] dark:border-[#27272A] text-xl font-black text-[#24211D] dark:text-[#F4F4F5] shadow-[0_2px_8px_rgba(40,30,20,0.03)] transition-all flex items-center justify-center cursor-pointer"
             >
               {digit}
             </button>
@@ -180,7 +180,7 @@ export function PinPadLockScreen({
           <button
             type="button"
             onClick={handleClear}
-            className="h-16 rounded-2xl bg-white/70 hover:bg-[#F4EBE3] active:scale-95 border border-[#EFE9E0] text-xs font-bold text-[#8C7A6B] transition-all flex items-center justify-center cursor-pointer"
+            className="h-16 rounded-2xl bg-white/70 dark:bg-[#1C1C1F]/70 hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] active:scale-95 border border-[#EFE9E0] dark:border-[#27272A] text-xs font-bold text-[#8C7A6B] dark:text-[#A1A1AA] transition-all flex items-center justify-center cursor-pointer"
           >
             Сброс
           </button>
@@ -188,7 +188,7 @@ export function PinPadLockScreen({
           <button
             type="button"
             onClick={() => handleDigitPress('0')}
-            className="h-16 rounded-2xl bg-white hover:bg-[#F4EBE3] active:scale-95 border border-[#EFE9E0] text-xl font-black text-[#24211D] shadow-[0_2px_8px_rgba(40,30,20,0.03)] transition-all flex items-center justify-center cursor-pointer"
+            className="h-16 rounded-2xl bg-white dark:bg-[#1C1C1F] hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] active:scale-95 border border-[#EFE9E0] dark:border-[#27272A] text-xl font-black text-[#24211D] dark:text-[#F4F4F5] shadow-[0_2px_8px_rgba(40,30,20,0.03)] transition-all flex items-center justify-center cursor-pointer"
           >
             0
           </button>
@@ -197,15 +197,15 @@ export function PinPadLockScreen({
             type="button"
             onClick={handleBackspace}
             aria-label="Стереть цифру"
-            className="h-16 rounded-2xl bg-white/70 hover:bg-[#F4EBE3] active:scale-95 border border-[#EFE9E0] text-[#7E766D] hover:text-[#24211D] transition-all flex items-center justify-center cursor-pointer"
+            className="h-16 rounded-2xl bg-white/70 dark:bg-[#1C1C1F]/70 hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] active:scale-95 border border-[#EFE9E0] dark:border-[#27272A] text-[#7E766D] dark:text-[#A1A1AA] hover:text-[#24211D] dark:hover:text-[#F4F4F5] transition-all flex items-center justify-center cursor-pointer"
           >
             <Delete className="w-5 h-5" />
           </button>
         </div>
 
         {/* Быстрые демо-кнопки переключения ролей */}
-        <div className="pt-2 border-t border-[#EFE9E0] space-y-2">
-          <span className="text-[10px] font-bold text-[#8C7A6B] block text-center uppercase tracking-wider">
+        <div className="pt-2 border-t border-[#EFE9E0] dark:border-[#27272A] space-y-2">
+          <span className="text-[10px] font-bold text-[#8C7A6B] dark:text-[#A1A1AA] block text-center uppercase tracking-wider">
             Быстрый вход для тестирования ролей:
           </span>
           <div className="grid grid-cols-3 gap-1.5">
@@ -214,19 +214,19 @@ export function PinPadLockScreen({
                 key={member.id}
                 type="button"
                 onClick={() => handleQuickDemoFill(member.pinCode)}
-                className="p-2 rounded-xl bg-white hover:bg-[#F4EBE3] border border-[#EFE9E0] text-left transition-all group"
+                className="p-2 rounded-xl bg-white dark:bg-[#1C1C1F] hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] border border-[#EFE9E0] dark:border-[#27272A] text-left transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-1.5">
                   {member.role === 'waiter' && <UserCheck className="w-3.5 h-3.5 text-[#B86B3E]" />}
                   {member.role === 'kitchen' && <ChefHat className="w-3.5 h-3.5 text-[#356BB3]" />}
                   {member.role === 'manager' && <Crown className="w-3.5 h-3.5 text-[#B87D2E]" />}
-                  <span className="text-[11px] font-black text-[#24211D] truncate">
+                  <span className="text-[11px] font-black text-[#24211D] dark:text-[#F4F4F5] truncate">
                     {member.name.split(' ')[0]}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-[10px] text-[#8C7A6B] mt-0.5">
+                <div className="flex items-center justify-between text-[10px] text-[#8C7A6B] dark:text-[#A1A1AA] mt-0.5">
                   <span className="truncate">{member.roleTitle.split(' ')[0]}</span>
-                  <span className="font-mono font-bold text-[#B86B3E]">{member.pinCode}</span>
+                  <span className="font-mono font-bold text-[#B86B3E] dark:text-[#E07A43]">{member.pinCode}</span>
                 </div>
               </button>
             ))}
@@ -235,7 +235,7 @@ export function PinPadLockScreen({
       </main>
 
       {/* Футер */}
-      <footer className="text-center text-[11px] text-[#A8A095] max-w-sm w-full mx-auto">
+      <footer className="text-center text-[11px] text-[#A8A095] dark:text-[#71717A] max-w-sm w-full mx-auto">
         Aura Digital Menu Security • Защищенный вход персонала заведения
       </footer>
     </div>

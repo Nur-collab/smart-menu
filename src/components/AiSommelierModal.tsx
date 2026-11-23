@@ -155,29 +155,29 @@ export function AiSommelierModal(): React.JSX.Element | null {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#FBF9F5] w-full max-w-lg h-[92vh] max-h-[700px] rounded-3xl shadow-2xl flex flex-col border border-[#EFE9E0] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-[#FBF9F5] dark:bg-[#18181B] w-full max-w-lg h-[92vh] max-h-[700px] rounded-3xl shadow-2xl flex flex-col border border-[#EFE9E0] dark:border-[#27272A] overflow-hidden text-[#24211D] dark:text-[#F4F4F5]">
         {/* Шапка диалога */}
-        <header className="bg-white border-b border-[#EFE9E0] px-4 py-3.5 flex items-center justify-between shrink-0 shadow-sm">
+        <header className="bg-white dark:bg-[#18181B] border-b border-[#EFE9E0] dark:border-[#27272A] px-4 py-3.5 flex items-center justify-between shrink-0 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#B86B3E] to-[#D98A5B] text-white flex items-center justify-center shadow-md">
               <Sparkles className="w-5 h-5 text-white animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h3 className="text-sm font-black text-[#24211D] leading-tight">
+                <h3 className="text-sm font-black text-[#24211D] dark:text-[#F4F4F5] leading-tight">
                   {t('aiSommelierTitle')}
                 </h3>
-                <span className="w-2 h-2 rounded-full bg-[#2F6B42] animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[#2F6B42] dark:bg-[#34D399] animate-pulse" />
               </div>
-              <p className="text-[11px] text-[#7E766D]">{t('aiSommelierSubtitle')}</p>
+              <p className="text-[11px] text-[#7E766D] dark:text-[#A1A1AA]">{t('aiSommelierSubtitle')}</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={() => setActiveModal(null)}
-            className="w-8 h-8 rounded-full bg-[#F4EBE3] hover:bg-[#EAE0D5] text-[#7E766D] hover:text-[#24211D] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[#F4EBE3] dark:bg-[#27201C] hover:bg-[#EAE0D5] dark:hover:bg-[#3D3028] text-[#7E766D] dark:text-[#A1A1AA] hover:text-[#24211D] dark:hover:text-[#F4F4F5] flex items-center justify-center transition-colors cursor-pointer"
             title="Закрыть"
           >
             <X className="w-4 h-4" />
@@ -195,7 +195,7 @@ export function AiSommelierModal(): React.JSX.Element | null {
                 className={`flex gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}
               >
                 {!isUser && (
-                  <div className="w-7 h-7 rounded-xl bg-[#F4EBE3] border border-[#E8DDD2] text-[#B86B3E] flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-7 h-7 rounded-xl bg-[#F4EBE3] dark:bg-[#27201C] border border-[#E8DDD2] dark:border-[#3D3028] text-[#B86B3E] dark:text-[#E07A43] flex items-center justify-center shrink-0 mt-0.5">
                     <Bot className="w-4 h-4" />
                   </div>
                 )}
@@ -204,14 +204,14 @@ export function AiSommelierModal(): React.JSX.Element | null {
                   <div
                     className={`p-3.5 rounded-2xl leading-relaxed shadow-sm ${
                       isUser
-                        ? 'bg-[#24211D] text-[#FBF9F5] rounded-tr-xs'
-                        : 'bg-white text-[#24211D] border border-[#EFE9E0] rounded-tl-xs'
+                        ? 'bg-[#24211D] dark:bg-[#27272A] text-[#FBF9F5] dark:text-[#F4F4F5] rounded-tr-xs'
+                        : 'bg-white dark:bg-[#1C1C1F] text-[#24211D] dark:text-[#F4F4F5] border border-[#EFE9E0] dark:border-[#27272A] rounded-tl-xs'
                     }`}
                   >
                     <p className="whitespace-pre-line">{msg.content}</p>
                     <span
                       className={`block text-[9px] text-right mt-1.5 ${
-                        isUser ? 'text-white/60' : 'text-[#A8A095]'
+                        isUser ? 'text-white/60 dark:text-white/50' : 'text-[#A8A095] dark:text-[#71717A]'
                       }`}
                     >
                       {msg.timestamp}
@@ -240,11 +240,11 @@ export function AiSommelierModal(): React.JSX.Element | null {
 
           {/* Индикатор набора текста / размышления */}
           {isThinking && (
-            <div className="flex gap-2.5 items-center text-[#7E766D]">
-              <div className="w-7 h-7 rounded-xl bg-[#F4EBE3] border border-[#E8DDD2] text-[#B86B3E] flex items-center justify-center shrink-0">
+            <div className="flex gap-2.5 items-center text-[#7E766D] dark:text-[#A1A1AA]">
+              <div className="w-7 h-7 rounded-xl bg-[#F4EBE3] dark:bg-[#27201C] border border-[#E8DDD2] dark:border-[#3D3028] text-[#B86B3E] dark:text-[#E07A43] flex items-center justify-center shrink-0">
                 <Sparkles className="w-4 h-4 animate-spin" />
               </div>
-              <div className="bg-white border border-[#EFE9E0] px-3.5 py-2 rounded-2xl text-[11px] font-medium text-[#B86B3E] animate-pulse">
+              <div className="bg-white dark:bg-[#1C1C1F] border border-[#EFE9E0] dark:border-[#27272A] px-3.5 py-2 rounded-2xl text-[11px] font-medium text-[#B86B3E] dark:text-[#E07A43] animate-pulse">
                 {t('aiThinking')}
               </div>
             </div>
@@ -255,14 +255,14 @@ export function AiSommelierModal(): React.JSX.Element | null {
 
         {/* Быстрые чипы-подсказки */}
         {effectiveChips.length > 0 && (
-          <div className="px-3 py-2 bg-white/70 border-t border-[#EFE9E0] overflow-x-auto no-scrollbar flex items-center gap-1.5 shrink-0">
+          <div className="px-3 py-2 bg-white/70 dark:bg-[#18181B]/70 border-t border-[#EFE9E0] dark:border-[#27272A] overflow-x-auto no-scrollbar flex items-center gap-1.5 shrink-0">
             {effectiveChips.map((chip, idx) => (
               <button
                 key={idx}
                 type="button"
                 disabled={isThinking}
                 onClick={() => void handleSendMessage(chip)}
-                className="px-3 py-1.5 rounded-full bg-[#F4EBE3] hover:bg-[#EAE0D5] text-[#7E766D] hover:text-[#24211D] border border-[#E8DDD2] text-[11px] font-semibold whitespace-nowrap transition-all shrink-0 cursor-pointer disabled:opacity-50"
+                className="px-3 py-1.5 rounded-full bg-[#F4EBE3] dark:bg-[#27201C] hover:bg-[#EAE0D5] dark:hover:bg-[#3D3028] text-[#7E766D] dark:text-[#A1A1AA] hover:text-[#24211D] dark:hover:text-[#F4F4F5] border border-[#E8DDD2] dark:border-[#3D3028] text-[11px] font-semibold whitespace-nowrap transition-all shrink-0 cursor-pointer disabled:opacity-50"
               >
                 {chip}
               </button>
@@ -271,7 +271,7 @@ export function AiSommelierModal(): React.JSX.Element | null {
         )}
 
         {/* Поле ввода вопроса */}
-        <footer className="p-3 bg-white border-t border-[#EFE9E0] shrink-0">
+        <footer className="p-3 bg-white dark:bg-[#18181B] border-t border-[#EFE9E0] dark:border-[#27272A] shrink-0">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -285,7 +285,7 @@ export function AiSommelierModal(): React.JSX.Element | null {
               onChange={(e) => setInputValue(e.target.value)}
               placeholder={t('aiInputPlaceholder')}
               disabled={isThinking}
-              className="flex-1 bg-[#FBF9F5] border border-[#EFE9E0] rounded-2xl px-3.5 py-2.5 text-xs text-[#24211D] placeholder:text-[#A8A095] focus:outline-none focus:border-[#B86B3E] transition-all disabled:opacity-50"
+              className="flex-1 bg-[#FBF9F5] dark:bg-[#1C1C1F] border border-[#EFE9E0] dark:border-[#27272A] rounded-2xl px-3.5 py-2.5 text-xs text-[#24211D] dark:text-[#F4F4F5] placeholder:text-[#A8A095] dark:placeholder:text-[#71717A] focus:outline-none focus:border-[#B86B3E] dark:focus:border-[#E07A43] transition-all disabled:opacity-50"
             />
             <button
               type="submit"
@@ -326,9 +326,9 @@ function SommelierDishRecommendationCard({
   const dishTitle = getLocalizedName(dish, language);
 
   return (
-    <div className="bg-white border border-[#EFE9E0] p-2.5 rounded-2xl shadow-sm flex items-center justify-between gap-3 hover:border-[#B86B3E]/40 transition-colors">
+    <div className="bg-white dark:bg-[#1C1C1F] border border-[#EFE9E0] dark:border-[#27272A] p-2.5 rounded-2xl shadow-sm flex items-center justify-between gap-3 hover:border-[#B86B3E]/40 dark:hover:border-[#E07A43]/40 transition-colors">
       <div className="flex items-center gap-2.5 min-w-0">
-        <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[#F4EBE3] shrink-0 border border-[#E8DDD2]">
+        <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[#F4EBE3] dark:bg-[#27201C] shrink-0 border border-[#E8DDD2] dark:border-[#3D3028]">
           <Image
             src={dish.imageUrl}
             alt={dishTitle}
@@ -338,20 +338,20 @@ function SommelierDishRecommendationCard({
           />
         </div>
         <div className="min-w-0">
-          <h4 className="text-xs font-bold text-[#24211D] truncate leading-tight">
+          <h4 className="text-xs font-bold text-[#24211D] dark:text-[#F4F4F5] truncate leading-tight">
             {dishTitle}
           </h4>
-          <p className="text-[10px] text-[#7E766D] mt-0.5 flex items-center gap-1.5">
+          <p className="text-[10px] text-[#7E766D] dark:text-[#A1A1AA] mt-0.5 flex items-center gap-1.5">
             <span>{dish.weight}</span>
             <span>•</span>
             <span>{dish.calories} {language === 'en' ? 'kcal' : 'ккал'}</span>
           </p>
           <div className="flex items-center gap-1.5 mt-1">
-            <span className="text-xs font-black text-[#2F6B42]">
+            <span className="text-xs font-black text-[#2F6B42] dark:text-[#34D399]">
               {priceInfo.currentPrice} {cafeInfo.currency}
             </span>
             {priceInfo.isHappyHoursDiscount && (
-              <span className="text-[9px] text-[#A8A095] line-through">
+              <span className="text-[9px] text-[#A8A095] dark:text-[#71717A] line-through">
                 {priceInfo.originalPrice} {cafeInfo.currency}
               </span>
             )}
@@ -366,7 +366,7 @@ function SommelierDishRecommendationCard({
           isAdded
             ? 'bg-[#2F6B42] text-white'
             : inCart
-            ? 'bg-[#EBF5ED] text-[#2F6B42] border border-[#D5EADB] hover:bg-[#D5EADB]'
+            ? 'bg-[#EBF5ED] dark:bg-[#152B1E] text-[#2F6B42] dark:text-[#34D399] border border-[#D5EADB] dark:border-[#1E432B] hover:bg-[#D5EADB]'
             : 'bg-[#B86B3E] hover:bg-[#A3592E] text-white'
         }`}
       >

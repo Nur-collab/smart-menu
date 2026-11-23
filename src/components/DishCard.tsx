@@ -74,7 +74,7 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
         return (
           <span
             key={badge}
-            className="bg-[#F4EBE3] text-[#B86B3E] font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-0.5 border border-[#E8DDD2] shadow-sm"
+            className="bg-[#F4EBE3] dark:bg-[#2D231C] text-[#B86B3E] dark:text-[#E07A43] font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-0.5 border border-[#E8DDD2] dark:border-[#3D3028] shadow-sm"
           >
             <Flame className="w-2.5 h-2.5" /> {t('badgeHit')}
           </span>
@@ -83,7 +83,7 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
         return (
           <span
             key={badge}
-            className="bg-[#F2EBF5] text-[#7A4B85] font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-0.5 border border-[#E4D5E8]"
+            className="bg-[#F2EBF5] dark:bg-[#281D2B] text-[#7A4B85] dark:text-[#C084FC] font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-0.5 border border-[#E4D5E8] dark:border-[#3F2B45]"
           >
             <Sparkles className="w-2.5 h-2.5" /> {t('badgeChef')}
           </span>
@@ -92,7 +92,7 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
         return (
           <span
             key={badge}
-            className="bg-[#EBF5ED] text-[#2F6B42] font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-0.5 border border-[#D5EADB]"
+            className="bg-[#EBF5ED] dark:bg-[#152B1E] text-[#2F6B42] dark:text-[#34D399] font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-0.5 border border-[#D5EADB] dark:border-[#1E432B]"
           >
             <Sprout className="w-2.5 h-2.5" /> {t('badgeVegan')}
           </span>
@@ -101,7 +101,7 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
         return (
           <span
             key={badge}
-            className="bg-[#FDF0ED] text-[#B84232] font-bold px-2 py-0.5 rounded-full text-[10px] border border-[#FADBD4]"
+            className="bg-[#FDF0ED] dark:bg-[#2E1815] text-[#B84232] dark:text-[#F87171] font-bold px-2 py-0.5 rounded-full text-[10px] border border-[#FADBD4] dark:border-[#4A201B]"
           >
             🌶️ {t('badgeSpicy')}
           </span>
@@ -110,7 +110,7 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
         return (
           <span
             key={badge}
-            className="bg-[#F7F3E8] text-[#8C712B] font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-0.5 border border-[#EDE2C5]"
+            className="bg-[#F7F3E8] dark:bg-[#2B2615] text-[#8C712B] dark:text-[#FBBF24] font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-0.5 border border-[#EDE2C5] dark:border-[#42391C]"
           >
             <Wheat className="w-2.5 h-2.5" /> {t('badgeGlutenFree')}
           </span>
@@ -119,7 +119,7 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
         return (
           <span
             key={badge}
-            className="bg-[#FDECEE] text-[#B83A4A] font-bold px-2 py-0.5 rounded-full text-[10px] border border-[#F8D2D7]"
+            className="bg-[#FDECEE] dark:bg-[#2D1619] text-[#B83A4A] dark:text-[#FB7185] font-bold px-2 py-0.5 rounded-full text-[10px] border border-[#F8D2D7] dark:border-[#4A1D23]"
           >
             % {t('badgeDiscount')}
           </span>
@@ -128,7 +128,7 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
         return (
           <span
             key={badge}
-            className="bg-[#F7F1E6] text-[#7A612A] font-bold px-2 py-0.5 rounded-full text-[10px] border border-[#ECE0C8]"
+            className="bg-[#F7F1E6] dark:bg-[#292215] text-[#7A612A] dark:text-[#FDE047] font-bold px-2 py-0.5 rounded-full text-[10px] border border-[#ECE0C8] dark:border-[#3D321A]"
           >
             {t('badgeBreakfast')}
           </span>
@@ -146,12 +146,12 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') handleCardClick();
       }}
-      className={`group relative bg-white border border-[#EFE9E0] rounded-3xl overflow-hidden hover:border-[#DFD5C7] hover:shadow-[0_6px_20px_rgba(40,30,20,0.06)] transition-all duration-300 flex flex-col cursor-pointer ${
+      className={`group relative bg-white dark:bg-[#18181B] border border-[#EFE9E0] dark:border-[#27272A] rounded-3xl overflow-hidden hover:border-[#DFD5C7] dark:hover:border-[#3F3F46] hover:shadow-[0_6px_20px_rgba(40,30,20,0.06)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.4)] transition-all duration-300 flex flex-col cursor-pointer ${
         isStopListed ? 'opacity-50 grayscale pointer-events-none' : ''
       }`}
     >
       {/* Изображение блюда */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F4EBE3]">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F4EBE3] dark:bg-[#27201C]">
         <img
           src={item.imageUrl}
           alt={localizedTitle}
@@ -162,7 +162,7 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
         {/* Бейджи в левом верхнем углу */}
         <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1 z-10">
           {priceInfo.isHappyHoursDiscount && (
-            <span className="bg-[#24211D] text-[#E39666] font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-1 border border-[#3E3832] shadow-sm animate-pulse">
+            <span className="bg-[#24211D] dark:bg-[#F4F4F5] text-[#E39666] dark:text-[#B86B3E] font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-1 border border-[#3E3832] dark:border-[#E4D5C5] shadow-sm animate-pulse">
               🌙 -20%
             </span>
           )}
@@ -179,8 +179,8 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
         )}
 
         {/* Время приготовления */}
-        <div className="absolute bottom-2.5 right-2.5 bg-white/90 backdrop-blur-md text-[#24211D] text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1 font-semibold shadow-sm border border-[#EFE9E0]/50">
-          <Clock className="w-2.5 h-2.5 text-[#B86B3E]" />
+        <div className="absolute bottom-2.5 right-2.5 bg-white/90 dark:bg-[#18181B]/90 backdrop-blur-md text-[#24211D] dark:text-[#F4F4F5] text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1 font-semibold shadow-sm border border-[#EFE9E0]/50 dark:border-[#27272A]">
+          <Clock className="w-2.5 h-2.5 text-[#B86B3E] dark:text-[#E07A43]" />
           <span>
             {item.cookingTimeMinutes} {t('minutesShort')}
           </span>
@@ -191,16 +191,16 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
       <div className="p-4 flex flex-col flex-1 justify-between gap-3">
         <div>
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-bold text-sm text-[#24211D] group-hover:text-[#B86B3E] transition-colors line-clamp-1">
+            <h3 className="font-bold text-sm text-[#24211D] dark:text-[#F4F4F5] group-hover:text-[#B86B3E] dark:group-hover:text-[#E07A43] transition-colors line-clamp-1">
               {localizedTitle}
             </h3>
           </div>
 
-          <p className="text-xs text-[#7E766D] line-clamp-2 mt-1 leading-relaxed">
+          <p className="text-xs text-[#7E766D] dark:text-[#A1A1AA] line-clamp-2 mt-1 leading-relaxed">
             {localizedDesc}
           </p>
 
-          <div className="flex items-center gap-2 text-[11px] text-[#A8A095] mt-2 font-medium">
+          <div className="flex items-center gap-2 text-[11px] text-[#A8A095] dark:text-[#71717A] mt-2 font-medium">
             <span>{item.weight}</span>
             <span>•</span>
             <span>
@@ -210,13 +210,13 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
         </div>
 
         {/* Футер карточки: Цена и Кнопка добавления */}
-        <div className="flex items-center justify-between pt-2.5 border-t border-[#F2ECE4]">
+        <div className="flex items-center justify-between pt-2.5 border-t border-[#F2ECE4] dark:border-[#27272A]">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-black text-[#24211D]">
+            <span className="text-base font-black text-[#24211D] dark:text-[#F4F4F5]">
               {priceInfo.currentPrice} {cafeInfo.currency}
             </span>
             {(priceInfo.isHappyHoursDiscount || item.oldPrice) && (
-              <span className="text-xs text-[#A8A095] line-through font-medium">
+              <span className="text-xs text-[#A8A095] dark:text-[#71717A] line-through font-medium">
                 {priceInfo.originalPrice} {cafeInfo.currency}
               </span>
             )}
@@ -250,7 +250,7 @@ export function DishCard({ item }: DishCardProps): React.JSX.Element {
               type="button"
               disabled={isStopListed}
               onClick={handleQuickAdd}
-              className="flex items-center gap-1.5 bg-[#F4EBE3] hover:bg-[#B86B3E] text-[#B86B3E] hover:text-white active:scale-95 text-xs font-bold px-3.5 py-1.5 rounded-2xl transition-all border border-[#E8DDD2] shadow-sm cursor-pointer"
+              className="flex items-center gap-1.5 bg-[#F4EBE3] dark:bg-[#27201C] hover:bg-[#B86B3E] text-[#B86B3E] dark:text-[#E07A43] hover:text-white active:scale-95 text-xs font-bold px-3.5 py-1.5 rounded-2xl transition-all border border-[#E8DDD2] dark:border-[#3D3028] shadow-sm cursor-pointer"
               title={t('addToCart')}
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
