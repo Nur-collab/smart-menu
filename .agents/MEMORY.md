@@ -14,10 +14,12 @@
   - DB Seed: `npx tsx prisma/seed.ts`
 
 ## 2. Active Work State
-- **Current Status:** Context Splitting (CartContext + KdsContext) & SW v2 Image Pre-caching deployed. Score: 19.0 / 19.0.
+- **Current Status:** Kyrgyz National Cuisine (16 dishes + cat-national), Context Splitting & SW v2 Pre-caching deployed. Score: 19.0 / 19.0.
 - **Enterprise Features:**
+  - Kyrgyz National Cuisine: Dedicated high-priority category `cat-national` ("Национальная кухня 🇰🇬" / "Улуттук ашкана 🇰🇬" / "National Kyrgyz Cuisine 🇰🇬") with 16 authentic dishes (Beshbarmak, Plov Uzgen Devzira, Kuurdak, Lagman Guiru/Boso, Manti, Ashlan-Fu, Shorpo, Chuchvara, Samsa, Shashlik, Lyulya, Boorsok with kaymak, Achik-Chuchuk, Tashkent Tea, Chalap/Maksym).
+  - Trilingual Menu: Complete localized titles and descriptions across Russian, Kyrgyz, and English.
   - Context Splitting Architecture: Isolated `CartContext` and `KdsContext` under composite `MenuProvider`. Guest cart actions no longer trigger KDS re-renders; KDS 2.5s polling cycles bypass cart state.
-  - ServiceWorker v2.0 Image Precache: Curated 28 Unsplash dish photos precached during worker installation into `aura-smart-menu-images-v2.0.0`; instant 0ms offline image rendering in basement halls.
+  - ServiceWorker v2.0 Image Precache: Curated 44 Unsplash dish photos precached during worker installation into `aura-smart-menu-images-v2.0.0`; instant 0ms offline image rendering in basement halls.
   - Strict KDS Status RBAC: `PATCH /api/orders/[id]` enforces `canCookOrders` for cooking/ready, `canServeOrders` for served/paid, and `canManageMenu` for cancellations.
   - Table Isolation & BOLA Defense: `GET /api/orders` and `GET /api/waiter-calls` filter by `?table=N` for unauthenticated guests; full dumps restricted to authenticated staff (`authorizeStaffRequest`).
   - Financial Data Privacy & Fiscal Guard: `GET /api/fiscal` restricted to managers; `GET /api/fiscal/[orderId]` strictly requires `paid` status.
@@ -43,8 +45,8 @@
 - **[Unpaid-Order-Fiscalization]** `GET /api/fiscal/[orderId]` issued receipts for unpaid orders -> Enforced `status === 'paid'` precondition.
 
 ## 5. Rolling Changelog (Max 5)
-- `2026-11-23` Context Splitting & SW v2.0: Decomposed `CartContext` & `KdsContext`, implemented Unsplash 28-image install precaching for offline basement dining.
+- `2026-11-23` Kyrgyz National Cuisine Expansion: Added `cat-national` with Flame icon & 16 top-priority authentic dishes, modifiers, trilingual metadata (RU/KG/EN), SW offline precaching.
+- `2026-11-23` Context Splitting & SW v2.0: Decomposed `CartContext` & `KdsContext`, implemented Unsplash install precaching for offline basement dining.
 - `2026-11-23` Deployed OWASP API Security Hardening: KDS RBAC, table isolation on orders/calls, POS & printer protection, fiscal integrity guard, CSP/HSTS headers, httpOnly cookies, AI rate limits.
 - `2026-11-23` Retained active paid order in guest context for fiscal receipt access and Salyk.kg verification.
 - `2026-11-23` Switched to Table Waiter-QR payment: 1-click "Отправить заказ на кухню", "Попросить счет" button, Waiter/Manager "Оплачено гостем ✓" lifecycle, fiscal receipt on completion.
-- `2026-11-23` Hardened Security & Persistence: Review rate limiting, DB fallback for reviews, production webhook signature enforcement, stoplist auth token integration.
