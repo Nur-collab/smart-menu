@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useMenu } from '@/context/MenuContext';
-import { Sparkles, Egg, Coffee, UtensilsCrossed, Cake, Salad, GlassWater, LucideIcon } from 'lucide-react';
+import { Sparkles, Egg, Coffee, UtensilsCrossed, Cake, Salad, GlassWater, Flame, LucideIcon } from 'lucide-react';
 import { getLocalizedCategoryName } from '@/lib/i18n';
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -13,6 +13,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Cake,
   Salad,
   GlassWater,
+  Flame,
 };
 
 export function CategoryNav(): React.JSX.Element {
