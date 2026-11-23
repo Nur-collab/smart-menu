@@ -14,12 +14,13 @@
   - DB Seed: `npx tsx prisma/seed.ts`
 
 ## 2. Active Work State
-- **Current Status:** Kyrgyz National Cuisine (16 dishes + cat-national), Context Splitting & SW v2 Pre-caching deployed. Score: 19.0 / 19.0.
+- **Current Status:** Full Dark Mode across all guest views and all 9 admin tabs deployed to production (`073e4bb`).
 - **Enterprise Features:**
-  - Kyrgyz National Cuisine: Dedicated high-priority category `cat-national` ("Национальная кухня 🇰🇬" / "Улуттук ашкана 🇰🇬" / "National Kyrgyz Cuisine 🇰🇬") with 16 authentic dishes (Beshbarmak, Plov Uzgen Devzira, Kuurdak, Lagman Guiru/Boso, Manti, Ashlan-Fu, Shorpo, Chuchvara, Samsa, Shashlik, Lyulya, Boorsok with kaymak, Achik-Chuchuk, Tashkent Tea, Chalap/Maksym).
-  - Trilingual Menu: Complete localized titles and descriptions across Russian, Kyrgyz, and English.
-  - Context Splitting Architecture: Isolated `CartContext` and `KdsContext` under composite `MenuProvider`. Guest cart actions no longer trigger KDS re-renders; KDS 2.5s polling cycles bypass cart state.
-  - ServiceWorker v2.0 Image Precache: Curated 44 Unsplash dish photos precached during worker installation into `aura-smart-menu-images-v2.0.0`; instant 0ms offline image rendering in basement halls.
+  - Complete Dark Mode Ecosystem: Tailwind CSS v4 `@custom-variant dark (&:where(.dark, .dark *));`, `:root` & `.dark` CSS variables, persistent `localStorage('aura_theme')` with cross-tab sync, dynamic mobile `<meta name="theme-color">` (`#121214` dark, `#FBF9F5` light), 0ms anti-FOUC blocking script in `<head>`.
+  - Comprehensive View Coverage: All 17 guest UI components (Header, ThemeToggle, LanguageSwitcher, WeatherBanner, SearchBar, CategoryNav, DishCards, DishDetailModal, CartDrawer, OrderTrackerModal, WaiterCallModal, FloatingCartBar, AiSommelierModal, FiscalReceiptModal) + all 9 staff admin tabs (KDS, Calls, Stop-list, QR, Analytics, KKM, POS/Printers, Reviews/2GIS, Menu Management) + PinPadLockScreen.
+  - Kyrgyz National Cuisine: Dedicated category `cat-national` with 16 authentic dishes, modifiers, trilingual metadata (RU/KG/EN), SW v2 image precache.
+  - Context Splitting Architecture: Isolated `CartContext` & `KdsContext` under composite `MenuProvider`.
+  - ServiceWorker v2.0 Image Precache: Curated 44 Unsplash dish photos precached during worker installation into `aura-smart-menu-images-v2.0.0`; instant 0ms offline image rendering.
   - Strict KDS Status RBAC: `PATCH /api/orders/[id]` enforces `canCookOrders` for cooking/ready, `canServeOrders` for served/paid, and `canManageMenu` for cancellations.
   - Table Isolation & BOLA Defense: `GET /api/orders` and `GET /api/waiter-calls` filter by `?table=N` for unauthenticated guests; full dumps restricted to authenticated staff (`authorizeStaffRequest`).
   - Financial Data Privacy & Fiscal Guard: `GET /api/fiscal` restricted to managers; `GET /api/fiscal/[orderId]` strictly requires `paid` status.
@@ -32,6 +33,7 @@
   - Health Diagnostics: `https://smart-menu-nu.vercel.app/api/health`
 
 ## 3. Architecture Invariants
+- **Dark Mode Architecture:** Class-based dark mode driven by `html.dark` via `@custom-variant dark`. Zero white flash on page load guaranteed by synchronous blocking inline script in `<head>`.
 - **Vercel Serverless & Neon Pooler:** Production runtime executes over Neon PgBouncer pooler (`DATABASE_URL`). All DB writes in API handlers are strictly awaited before returning HTTP responses.
 - **Context Decoupling:** Re-render boundaries strictly isolated between Guest Cart actions and Staff KDS real-time events.
 - **Offline Resilience:** All static menu photography and assets cached in CacheStorage for complete offline dining experience.
@@ -45,8 +47,8 @@
 - **[Unpaid-Order-Fiscalization]** `GET /api/fiscal/[orderId]` issued receipts for unpaid orders -> Enforced `status === 'paid'` precondition.
 
 ## 5. Rolling Changelog (Max 5)
+- `2026-11-23` Comprehensive Dark Mode: Implemented ThemeContext, ThemeToggle, anti-FOUC script, Tailwind v4 @custom-variant, complete dark styling for all 17 guest components and all 9 admin tabs.
 - `2026-11-23` Kyrgyz National Cuisine Expansion: Added `cat-national` with Flame icon & 16 top-priority authentic dishes, modifiers, trilingual metadata (RU/KG/EN), SW offline precaching.
 - `2026-11-23` Context Splitting & SW v2.0: Decomposed `CartContext` & `KdsContext`, implemented Unsplash install precaching for offline basement dining.
 - `2026-11-23` Deployed OWASP API Security Hardening: KDS RBAC, table isolation on orders/calls, POS & printer protection, fiscal integrity guard, CSP/HSTS headers, httpOnly cookies, AI rate limits.
-- `2026-11-23` Retained active paid order in guest context for fiscal receipt access and Salyk.kg verification.
 - `2026-11-23` Switched to Table Waiter-QR payment: 1-click "Отправить заказ на кухню", "Попросить счет" button, Waiter/Manager "Оплачено гостем ✓" lifecycle, fiscal receipt on completion.
