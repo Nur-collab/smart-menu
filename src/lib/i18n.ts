@@ -109,6 +109,11 @@ export interface Translations {
   readonly payCash: string;
   readonly payTerminal: string;
   readonly paySplit: string;
+  readonly requestBill: string;
+  readonly billRequested: string;
+  readonly paymentToWaiter: string;
+  readonly paymentToWaiterDesc: string;
+  readonly sendToKitchen: string;
 
   // Вызов официанта
   readonly waiterCallTitle: string;
@@ -243,6 +248,11 @@ export const DICTIONARY: Record<Language, Translations> = {
     payCash: 'Наличными официанту',
     payTerminal: 'Банковской картой (POS)',
     paySplit: 'Разделить счет с друзьями',
+    requestBill: 'Попросить счет',
+    billRequested: 'Счет запрошен! Официант уже несет счет и QR-код к столику',
+    paymentToWaiter: 'Оплата официанту при получении счета',
+    paymentToWaiterDesc: 'Официант принесет QR-код (ELQR / MBANK / О!Деньги) или терминал к вашему столику',
+    sendToKitchen: 'Отправить заказ на кухню',
 
     waiterCallTitle: 'Сервис заведения',
     waiterCallSubtitle: 'Выберите, чем мы можем вам помочь прямо сейчас:',
@@ -373,6 +383,11 @@ export const DICTIONARY: Record<Language, Translations> = {
     payCash: 'Официантка накталай төлөө',
     payTerminal: 'Банк картасы менен (POS)',
     paySplit: 'Эсепти достор менен бөлүү',
+    requestBill: 'Эсеп суроо',
+    billRequested: 'Эсеп суралды! Официант эсеп жана QR-код менен үстөлүңүзгө келе жатат',
+    paymentToWaiter: 'Эсеп алганда официант аркылуу төлөө',
+    paymentToWaiterDesc: 'Официант QR-код (ELQR / MBANK / О!Деньги) же терминалды үстөлүңүзгө алып келет',
+    sendToKitchen: 'Буйрутманы ашканага жөнөтүү',
 
     waiterCallTitle: 'Тейлөө кызматы',
     waiterCallSubtitle: 'Сизге кандай жардам керек, тандаңыз:',
@@ -503,6 +518,11 @@ export const DICTIONARY: Record<Language, Translations> = {
     payCash: 'Cash to waiter',
     payTerminal: 'Bank card (POS Terminal)',
     paySplit: 'Split bill with friends',
+    requestBill: 'Request Bill',
+    billRequested: 'Bill requested! The waiter is on the way to your table with the bill and QR code',
+    paymentToWaiter: 'Payment upon bill receipt',
+    paymentToWaiterDesc: 'The waiter will bring the QR code (ELQR / MBANK / O!Dengi) or POS terminal to your table',
+    sendToKitchen: 'Send Order to Kitchen',
 
     waiterCallTitle: 'Guest Service',
     waiterCallSubtitle: 'How can our staff assist you right now:',

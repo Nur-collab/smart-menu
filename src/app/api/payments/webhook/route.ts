@@ -6,9 +6,15 @@ import { BankWebhookPayload } from '@/types/payment';
 const BANK_WEBHOOK_SECRET = process.env.BANK_WEBHOOK_SECRET || 'AURA_BANK_SECRET_KG_2026';
 
 function verifyWebhookSignature(payload: BankWebhookPayload): boolean {
-  // Для тестирования принимаем явную подпись 'test-signature' или валидируем HMAC-SHA256
-  if (payload.signature === 'test-signature' || payload.signature === 'sandbox-bypass') {
-    return true;
+  // В не-production среде разрешаем тестовую подпись для локальной отладки
+  if (process.env.NODE_ENV !== 'production') {
+    if (payload.signature === 'test-signature' || payload.signature === 'sandbox-bypass') {
+      return true;
+    }
+  }
+
+  if (!payload.signature) {
+    return false;
   }
 
   const rawData = `${payload.transactionId}:${payload.invoiceNumber}:${payload.amount}:${payload.timestamp}`;
@@ -17,7 +23,16 @@ function verifyWebhookSignature(payload: BankWebhookPayload): boolean {
     .update(rawData)
     .digest('hex');
 
-  return payload.signature === expectedSignature;
+  try {
+    const sigBuf = Buffer.from(payload.signature, 'hex');
+    const expBuf = Buffer.from(expectedSignature, 'hex');
+    if (sigBuf.length !== expBuf.length) {
+      return false;
+    }
+    return crypto.timingSafeEqual(sigBuf, expBuf);
+  } catch {
+    return false;
+  }
 }
 
 export async function POST(request: Request): Promise<NextResponse> {

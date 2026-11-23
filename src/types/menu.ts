@@ -89,8 +89,9 @@ export type OrderStatus =
   | 'paid'
   | 'cancelled';
 
-// Способы оплаты с учетом рынка Кыргызстана: ELQR (Национальный QR КР), MBANK QR, О!Деньги, Терминал (Элкарт/Visa), Наличные, Сплит
+// Способы оплаты с учетом рынка Кыргызстана: QR официанта (ELQR, MBANK), Терминал (Элкарт/Visa), Наличные, Сплит
 export type PaymentMethod =
+  | 'waiter_qr'
   | 'elqr'
   | 'mbank'
   | 'odengi'

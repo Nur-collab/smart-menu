@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createReview, getAllReviews, getReviewStats } from '@/lib/serverStore';
 import { ReviewSubmitPayload } from '@/types/review';
+import { getClientIp, checkRateLimit, RATE_LIMITS } from '@/lib/security/rateLimiter';
 
 /**
  * GET /api/reviews
@@ -8,7 +9,7 @@ import { ReviewSubmitPayload } from '@/types/review';
  */
 export async function GET(): Promise<NextResponse> {
   try {
-    const reviews = getAllReviews();
+    const reviews = await getAllReviews();
     const stats = getReviewStats();
 
     return NextResponse.json(
@@ -34,6 +35,23 @@ export async function GET(): Promise<NextResponse> {
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    const ip = getClientIp(req);
+    const rateCheck = checkRateLimit(`review:${ip}`, RATE_LIMITS.REVIEWS);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Слишком много отзывов. Пожалуйста, повторите попытку через ${rateCheck.retryAfterSeconds} сек.`,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rateCheck.retryAfterSeconds),
+          },
+        }
+      );
+    }
+
     const body = (await req.json()) as ReviewSubmitPayload;
 
     if (!body || typeof body.rating !== 'number' || !body.tableNumber) {

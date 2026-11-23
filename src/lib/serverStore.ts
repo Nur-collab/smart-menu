@@ -888,7 +888,41 @@ export async function createReview(payload: ReviewSubmitPayload): Promise<GuestR
 /**
  * Получить все отзывы гостей
  */
-export function getAllReviews(): readonly GuestReview[] {
+export async function getAllReviews(): Promise<readonly GuestReview[]> {
+  try {
+    const dbReviews = await prisma.guestReview.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+    if (dbReviews.length > 0) {
+      const mappedReviews: GuestReview[] = dbReviews.map((r) => ({
+        id: r.id,
+        orderId: undefined,
+        tableNumber: r.tableNumber,
+        rating: r.rating as 1 | 2 | 3 | 4 | 5,
+        sentiment: r.sentiment as 'positive' | 'negative' | 'neutral',
+        tags: Array.isArray(r.tags) ? (r.tags as string[]) : [],
+        comment: r.comment ?? undefined,
+        externalPlatform: (r.externalPlatform as '2gis' | 'google' | 'yandex' | null) ?? null,
+        bonusAwarded: r.bonusAwarded,
+        status: (r.status as 'new' | 'reviewed' | 'resolved') || 'new',
+        createdAt: r.createdAt.toISOString(),
+      }));
+
+      const reviewMap = new Map<string, GuestReview>();
+      for (const rev of storeState.reviews) {
+        reviewMap.set(rev.id, rev);
+      }
+      for (const rev of mappedReviews) {
+        reviewMap.set(rev.id, rev);
+      }
+      storeState.reviews = Array.from(reviewMap.values()).sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    }
+  } catch (err) {
+    console.warn('getAllReviews Neon fallback to memory store:', err);
+  }
   return [...storeState.reviews];
 }
 
@@ -956,7 +990,33 @@ export async function updateReviewStatus(
   status: GuestReview['status'],
   managerNotes?: string
 ): Promise<GuestReview | null> {
-  const target = storeState.reviews.find((r) => r.id === id);
+  let target = storeState.reviews.find((r) => r.id === id);
+
+  if (!target) {
+    try {
+      const dbReview = await prisma.guestReview.findUnique({ where: { id } });
+      if (dbReview) {
+        const foundReview: GuestReview = {
+          id: dbReview.id,
+          orderId: undefined,
+          tableNumber: dbReview.tableNumber,
+          rating: dbReview.rating as 1 | 2 | 3 | 4 | 5,
+          sentiment: dbReview.sentiment as 'positive' | 'negative' | 'neutral',
+          tags: Array.isArray(dbReview.tags) ? (dbReview.tags as string[]) : [],
+          comment: dbReview.comment ?? undefined,
+          externalPlatform: (dbReview.externalPlatform as '2gis' | 'google' | 'yandex' | null) ?? null,
+          bonusAwarded: dbReview.bonusAwarded,
+          status: (dbReview.status as 'new' | 'reviewed' | 'resolved') || 'new',
+          createdAt: dbReview.createdAt.toISOString(),
+        };
+        target = foundReview;
+        storeState.reviews.push(foundReview);
+      }
+    } catch (err) {
+      console.warn('updateReviewStatus fallback search failed:', err);
+    }
+  }
+
   if (!target) return null;
 
   const updated: GuestReview = {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateReviewStatus } from '@/lib/serverStore';
 import { GuestReview } from '@/types/review';
+import { authorizeStaffRequest } from '@/lib/serverAuth';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -15,6 +16,11 @@ export async function PATCH(
   context: RouteContext
 ): Promise<NextResponse> {
   try {
+    const auth = authorizeStaffRequest(req, 'canManageReviews');
+    if (!auth.authorized) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+
     const { id } = await context.params;
     const body = (await req.json()) as {
       status?: GuestReview['status'];

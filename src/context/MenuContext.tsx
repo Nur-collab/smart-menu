@@ -458,10 +458,16 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
       return next;
     });
 
-    // Отправка на центральный сервер
+    // Отправка на центральный сервер с токеном авторизации сотрудника
+    const token = typeof window !== 'undefined' ? sessionStorage.getItem('staff_session_token') : null;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     fetch('/api/stoplist', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ itemId }),
     }).catch(() => {
       // Фолбэк при сетевой ошибке
@@ -569,13 +575,9 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
         setUserBonusBalance((prev) => Math.max(0, prev - discountAmount));
       }
 
-      // Для онлайн-способов оплаты Кыргызстана открываем модалку оплаты ELQR / Банки
-      if (paymentMethod === 'elqr' || paymentMethod === 'mbank' || paymentMethod === 'odengi') {
-        setCurrentPayingOrderId(newOrder.id);
-        setActiveModal('payment');
-      } else {
-        setActiveModal('tracker');
-      }
+      // Заказ отправлен на кухню, переходим к отслеживанию статуса
+      setCurrentPayingOrderId(newOrder.id);
+      setActiveModal('tracker');
 
       // Отправка на центральный сервер для оповещения кухни
       fetch('/api/orders', {

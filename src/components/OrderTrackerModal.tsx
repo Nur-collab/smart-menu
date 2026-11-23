@@ -53,13 +53,14 @@ export function OrderTrackerModal(): React.JSX.Element | null {
     setActiveModal,
     activeOrder,
     cafeInfo,
-    openPaymentModal,
+    callWaiter,
     openFiscalReceiptModal,
     t,
     language,
   } = useMenu();
   const [rating, setRating] = useState<number>(5);
   const [reviewSent, setReviewSent] = useState<boolean>(false);
+  const [billRequested, setBillRequested] = useState<boolean>(false);
 
   if (activeModal !== 'tracker' || !activeOrder) return null;
 
@@ -231,26 +232,28 @@ export function OrderTrackerModal(): React.JSX.Element | null {
                   <span>{t('orderReceipt')}</span>
                 </button>
               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => openPaymentModal(activeOrder.id)}
-                  className="flex-1 bg-[#B86B3E] hover:bg-[#A3592E] text-white text-xs font-bold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer"
-                >
-                  <QrCode className="w-3.5 h-3.5" />
-                  <span>{t('payOnline')}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openFiscalReceiptModal(activeOrder.id)}
-                  className="bg-white hover:bg-[#F4EBE3] text-[#24211D] border border-[#EFE9E0] text-xs font-bold py-2 px-2.5 rounded-xl flex items-center gap-1 shadow-2xs cursor-pointer"
-                  title={t('orderReceipt')}
-                >
-                  <Receipt className="w-3.5 h-3.5 text-[#B86B3E]" />
-                  <span>{t('bill')}</span>
-                </button>
+            ) : billRequested ? (
+              <div className="bg-[#FAF6F0] border border-[#E8DDD2] rounded-xl p-3 flex items-start gap-2.5 text-xs text-[#24211D]">
+                <CheckCircle2 className="w-4 h-4 text-[#2F6B42] shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <span className="font-bold block text-[#24211D]">{t('requestBill')}</span>
+                  <span className="text-[11px] text-[#7E766D] leading-relaxed block mt-0.5">
+                    {t('billRequested')}
+                  </span>
+                </div>
               </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  callWaiter('bill');
+                  setBillRequested(true);
+                }}
+                className="w-full bg-[#B86B3E] hover:bg-[#A3592E] active:scale-95 text-white text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+              >
+                <Receipt className="w-4 h-4" />
+                <span>{t('requestBill')} (ELQR / MBANK / Карта)</span>
+              </button>
             )}
           </div>
         </div>

@@ -97,7 +97,7 @@ export function AdminPanelModal(): React.JSX.Element | null {
     if (next === 'cooking' || next === 'ready') {
       return permissions.canCookOrders;
     }
-    if (next === 'served') {
+    if (next === 'served' || next === 'paid') {
       return permissions.canServeOrders;
     }
     return false;
@@ -124,6 +124,8 @@ export function AdminPanelModal(): React.JSX.Element | null {
         return 'ready';
       case 'ready':
         return 'served';
+      case 'served':
+        return 'paid';
       default:
         return null;
     }
@@ -400,6 +402,7 @@ export function AdminPanelModal(): React.JSX.Element | null {
                                 {nextStatus === 'cooking' && 'Начать готовить'}
                                 {nextStatus === 'ready' && 'Готово к выдаче'}
                                 {nextStatus === 'served' && 'Отметить поданным'}
+                                {nextStatus === 'paid' && 'Оплачено гостем ✓'}
                               </span>
                               <ArrowRight className="w-3.5 h-3.5" />
                             </button>
@@ -408,6 +411,7 @@ export function AdminPanelModal(): React.JSX.Element | null {
                               {nextStatus === 'cooking' && 'Ждёт повара'}
                               {nextStatus === 'ready' && 'Готовит кухня'}
                               {nextStatus === 'served' && 'Ожидает официанта'}
+                              {nextStatus === 'paid' && 'Ожидает оплаты'}
                             </span>
                           )
                         ) : (

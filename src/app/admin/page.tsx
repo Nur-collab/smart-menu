@@ -163,6 +163,8 @@ function AdminDashboardContent(): React.JSX.Element {
 
   const getPaymentLabel = (method: string): string => {
     switch (method) {
+      case 'waiter_qr':
+        return 'Оплата официанту (QR / Карта / Нал)';
       case 'elqr':
         return 'ELQR (КР)';
       case 'mbank':
@@ -188,6 +190,8 @@ function AdminDashboardContent(): React.JSX.Element {
         return 'ready';
       case 'ready':
         return 'served';
+      case 'served':
+        return 'paid';
       default:
         return null;
     }
@@ -296,7 +300,7 @@ function AdminDashboardContent(): React.JSX.Element {
     if (next === 'cooking' || next === 'ready') {
       return permissions.canCookOrders;
     }
-    if (next === 'served') {
+    if (next === 'served' || next === 'paid') {
       return permissions.canServeOrders;
     }
     return false;
@@ -801,6 +805,7 @@ function AdminDashboardContent(): React.JSX.Element {
                                 {nextStatus === 'cooking' && 'В работу'}
                                 {nextStatus === 'ready' && 'Готово'}
                                 {nextStatus === 'served' && 'Подать гостю ✓'}
+                                {nextStatus === 'paid' && 'Оплачено гостем ✓'}
                               </span>
                               <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
                             </button>
@@ -811,6 +816,7 @@ function AdminDashboardContent(): React.JSX.Element {
                                 {nextStatus === 'cooking' && 'Ждёт повара'}
                                 {nextStatus === 'ready' && 'Готовит кухня'}
                                 {nextStatus === 'served' && 'Ожидает официанта'}
+                                {nextStatus === 'paid' && 'Ожидает оплаты'}
                               </span>
                             </div>
                           )

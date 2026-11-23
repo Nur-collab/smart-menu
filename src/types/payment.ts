@@ -9,7 +9,8 @@ export type PaymentGatewayProvider =
   | 'odengi'
   | 'card_to_waiter'
   | 'cash'
-  | 'split';
+  | 'split'
+  | 'waiter_qr';
 
 export type PaymentTransactionStatus =
   | 'pending'

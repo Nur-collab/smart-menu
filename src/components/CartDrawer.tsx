@@ -16,6 +16,7 @@ import {
   HeartHandshake,
   Check,
   Smartphone,
+  ChefHat,
 } from 'lucide-react';
 import { getSmartUpsellRecommendations } from '@/lib/upsellEngine';
 import { getLocalizedName } from '@/lib/i18n';
@@ -40,7 +41,7 @@ export function CartDrawer(): React.JSX.Element | null {
     getItemPriceWithDiscount,
   } = useMenu();
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('elqr');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('waiter_qr');
   const [tipPercent, setTipPercent] = useState<number>(10);
   const [useBonuses, setUseBonuses] = useState<boolean>(false);
   const [orderComment, setOrderComment] = useState<string>('');
@@ -323,113 +324,27 @@ export function CartDrawer(): React.JSX.Element | null {
                 </div>
               </div>
 
-              {/* Способ оплаты для Кыргызстана */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-bold text-[#8C7A6B] uppercase tracking-wider block">
-                    {t('paymentMethodTitle')}
-                  </label>
-                  <span className="text-[10px] text-[#2F6B42] font-semibold bg-[#EBF5ED] px-2 py-0.5 rounded-full">
-                    ELQR / Банки КР
-                  </span>
+              {/* Информация об оплате официанту */}
+              <div className="bg-[#FAF6F0] border border-[#EFE9E0] rounded-2xl p-3.5 space-y-2.5">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-white border border-[#E8DDD2] flex items-center justify-center text-[#B86B3E] shadow-2xs shrink-0 mt-0.5">
+                    <QrCode className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-bold text-[#24211D]">
+                      {t('paymentToWaiter')}
+                    </h5>
+                    <p className="text-[11px] text-[#7E766D] leading-relaxed mt-0.5">
+                      {t('paymentToWaiterDesc')}
+                    </p>
+                  </div>
                 </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('elqr')}
-                    className={`p-2.5 rounded-2xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                      paymentMethod === 'elqr'
-                        ? 'bg-[#EBF5ED] border-[#2F6B42] text-[#2F6B42] shadow-sm'
-                        : 'bg-white border-[#EFE9E0] text-[#7E766D] hover:border-[#DFD5C7]'
-                    }`}
-                  >
-                    <QrCode className="w-4 h-4 text-[#2F6B42]" />
-                    <div className="text-left">
-                      <span className="block leading-tight">ELQR КР</span>
-                      <span className="text-[9px] font-normal text-[#7E766D] block">Все банки КР</span>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('mbank')}
-                    className={`p-2.5 rounded-2xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                      paymentMethod === 'mbank'
-                        ? 'bg-[#F4EBE3] border-[#B86B3E] text-[#B86B3E] shadow-sm'
-                        : 'bg-white border-[#EFE9E0] text-[#7E766D] hover:border-[#DFD5C7]'
-                    }`}
-                  >
-                    <Smartphone className="w-4 h-4 text-[#B86B3E]" />
-                    <div className="text-left">
-                      <span className="block leading-tight">MBANK QR</span>
-                      <span className="text-[9px] font-normal text-[#7E766D] block">MBANK</span>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('odengi')}
-                    className={`p-2.5 rounded-2xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                      paymentMethod === 'odengi'
-                        ? 'bg-[#FDF0ED] border-[#B84232] text-[#B84232] shadow-sm'
-                        : 'bg-white border-[#EFE9E0] text-[#7E766D] hover:border-[#DFD5C7]'
-                    }`}
-                  >
-                    <Smartphone className="w-4 h-4 text-[#B84232]" />
-                    <div className="text-left">
-                      <span className="block leading-tight">О!Деньги</span>
-                      <span className="text-[9px] font-normal text-[#7E766D] block">Мой О!</span>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('card_to_waiter')}
-                    className={`p-2.5 rounded-2xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                      paymentMethod === 'card_to_waiter'
-                        ? 'bg-[#EDF3FA] border-[#356BB3] text-[#356BB3] shadow-sm'
-                        : 'bg-white border-[#EFE9E0] text-[#7E766D] hover:border-[#DFD5C7]'
-                    }`}
-                  >
-                    <CreditCard className="w-4 h-4 text-[#356BB3]" />
-                    <div className="text-left">
-                      <span className="block leading-tight">{language === 'en' ? 'POS Terminal' : 'Терминал'}</span>
-                      <span className="text-[9px] font-normal text-[#7E766D] block">Элкарт / Visa</span>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('cash')}
-                    className={`p-2.5 rounded-2xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                      paymentMethod === 'cash'
-                        ? 'bg-[#F4EBE3] border-[#B86B3E] text-[#B86B3E] shadow-sm'
-                        : 'bg-white border-[#EFE9E0] text-[#7E766D] hover:border-[#DFD5C7]'
-                    }`}
-                  >
-                    <Banknote className="w-4 h-4 text-[#B86B3E]" />
-                    <div className="text-left">
-                      <span className="block leading-tight">{language === 'en' ? 'Cash' : language === 'kg' ? 'Накталай' : 'Наличные'}</span>
-                      <span className="text-[9px] font-normal text-[#7E766D] block">{language === 'en' ? 'To waiter' : 'Официантка'}</span>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('split')}
-                    className={`p-2.5 rounded-2xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                      paymentMethod === 'split'
-                        ? 'bg-[#F2EBF5] border-[#7A4B85] text-[#7A4B85] shadow-sm'
-                        : 'bg-white border-[#EFE9E0] text-[#7E766D] hover:border-[#DFD5C7]'
-                    }`}
-                  >
-                    <Users className="w-4 h-4 text-[#7A4B85]" />
-                    <div className="text-left">
-                      <span className="block leading-tight">{language === 'en' ? 'Split Bill' : language === 'kg' ? 'Бөлүү' : 'Сплит-чек'}</span>
-                      <span className="text-[9px] font-normal text-[#7E766D] block">{language === 'en' ? 'Split with friends' : 'Разделить'}</span>
-                    </div>
-                  </button>
+                <div className="flex items-center gap-1.5 pt-2 border-t border-[#EFE9E0] text-[10px] text-[#8C7A6B] flex-wrap">
+                  <span className="bg-white px-2 py-0.5 rounded-md border border-[#E8DDD2] font-semibold text-[#2F6B42]">ELQR НБКР</span>
+                  <span className="bg-white px-2 py-0.5 rounded-md border border-[#E8DDD2] font-semibold text-[#B86B3E]">MBANK QR</span>
+                  <span className="bg-white px-2 py-0.5 rounded-md border border-[#E8DDD2] font-semibold text-[#B84232]">О!Деньги</span>
+                  <span className="bg-white px-2 py-0.5 rounded-md border border-[#E8DDD2] font-semibold text-[#356BB3]">Элкарт / Visa</span>
+                  <span className="bg-white px-2 py-0.5 rounded-md border border-[#E8DDD2] font-semibold text-[#7E766D]">Наличные</span>
                 </div>
               </div>
 
@@ -476,19 +391,10 @@ export function CartDrawer(): React.JSX.Element | null {
             <button
               type="button"
               onClick={handleCheckout}
-              className="w-full bg-[#B86B3E] hover:bg-[#A3592E] active:scale-95 text-white font-bold text-sm py-3 px-4 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-[#B86B3E] hover:bg-[#A3592E] active:scale-95 text-white font-bold text-sm py-3.5 px-4 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              {paymentMethod === 'split' ? (
-                <>
-                  <Users className="w-4 h-4" />
-                  <span>{language === 'en' ? 'Proceed to Split Bill' : language === 'kg' ? 'Эсепти бөлүүгө өтүү' : 'Перейти к разделению счета'}</span>
-                </>
-              ) : (
-                <>
-                  <QrCode className="w-4 h-4" />
-                  <span>{t('submitOrder')}</span>
-                </>
-              )}
+              <ChefHat className="w-4 h-4 stroke-[2.5]" />
+              <span>{t('sendToKitchen')}</span>
             </button>
           </div>
         )}
