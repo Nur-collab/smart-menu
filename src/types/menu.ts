@@ -154,6 +154,13 @@ export interface CafeInfo {
   readonly weatherType: WeatherType;
 }
 
+export interface SubmitOrderParams {
+  readonly paymentMethod: PaymentMethod;
+  readonly tipAmount: number;
+  readonly discountAmount: number;
+  readonly comment?: string;
+}
+
 export interface ServerEventData {
   readonly type:
     | 'INIT'
