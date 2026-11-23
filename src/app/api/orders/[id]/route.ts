@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { updateOrderStatusInStore } from '@/lib/serverStore';
 import { OrderStatus } from '@/types/menu';
 import { authorizeStaffRequest } from '@/lib/serverAuth';
+import { getPermissionsByRole } from '@/types/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +13,7 @@ interface RouteContext {
 export async function PATCH(req: NextRequest, context: RouteContext): Promise<NextResponse> {
   try {
     const auth = authorizeStaffRequest(req);
-    if (!auth.authorized) {
+    if (!auth.authorized || !auth.session) {
       return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
@@ -24,6 +25,32 @@ export async function PATCH(req: NextRequest, context: RouteContext): Promise<Ne
         { success: false, error: 'Статус заказа не указан' },
         { status: 400 }
       );
+    }
+
+    const permissions = getPermissionsByRole(auth.session.role);
+
+    // Ролевая валидация перехода статуса в KDS (RBAC)
+    if (body.status === 'cooking' || body.status === 'ready') {
+      if (!permissions.canCookOrders) {
+        return NextResponse.json(
+          { success: false, error: `Роль ${auth.session.role} не имеет прав на приготовление заказов (canCookOrders)` },
+          { status: 403 }
+        );
+      }
+    } else if (body.status === 'served' || body.status === 'paid') {
+      if (!permissions.canServeOrders) {
+        return NextResponse.json(
+          { success: false, error: `Роль ${auth.session.role} не имеет прав на выдачу и расчет заказа (canServeOrders)` },
+          { status: 403 }
+        );
+      }
+    } else if (body.status === 'cancelled') {
+      if (!permissions.canManageMenu) {
+        return NextResponse.json(
+          { success: false, error: `Роль ${auth.session.role} не имеет прав на отмену заказа` },
+          { status: 403 }
+        );
+      }
     }
 
     const updated = await updateOrderStatusInStore(id, body.status);

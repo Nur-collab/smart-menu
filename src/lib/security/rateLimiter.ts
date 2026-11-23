@@ -107,6 +107,8 @@ export const RATE_LIMITS = {
   WAITER_CALL: { maxRequests: 10, windowMs: 5 * 60 * 1000 },
   // Guest review guard: 5 reviews per 5 minutes per IP
   REVIEWS: { maxRequests: 5, windowMs: 5 * 60 * 1000 },
+  // AI sommelier semantic search guard: 15 requests per 5 minutes per IP
+  AI_SOMMELIER: { maxRequests: 15, windowMs: 5 * 60 * 1000 },
   // General mutating API: 60 requests per minute
   GENERAL_MUTATION: { maxRequests: 60, windowMs: 60 * 1000 },
 } as const;

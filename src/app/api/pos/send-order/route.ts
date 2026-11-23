@@ -1,14 +1,22 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getOrderById } from '@/lib/serverStore';
 import { sendOrderToPos } from '@/lib/posBridge';
+import { authorizeStaffRequest } from '@/lib/serverAuth';
 
-export async function POST(request: Request): Promise<NextResponse> {
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const { orderId } = (await request.json()) as { orderId: string };
+    const auth = authorizeStaffRequest(req);
+    if (!auth.authorized) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+
+    const { orderId } = (await req.json()) as { orderId: string };
 
     if (!orderId) {
       return NextResponse.json(
-        { error: 'Параметр orderId обязателен' },
+        { success: false, error: 'Параметр orderId обязателен' },
         { status: 400 }
       );
     }
@@ -16,7 +24,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const order = getOrderById(orderId);
     if (!order) {
       return NextResponse.json(
-        { error: `Заказ #${orderId} не найден` },
+        { success: false, error: `Заказ #${orderId} не найден` },
         { status: 404 }
       );
     }
@@ -25,6 +33,6 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Ошибка отправки заказа в кассу';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

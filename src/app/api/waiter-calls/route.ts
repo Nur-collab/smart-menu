@@ -2,12 +2,32 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAllWaiterCalls, createWaiterCall } from '@/lib/serverStore';
 import { getClientIp, checkRateLimit, RATE_LIMITS } from '@/lib/security/rateLimiter';
 import { validateWaiterCallInput } from '@/lib/validation/schemas';
+import { authorizeStaffRequest } from '@/lib/serverAuth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  const auth = authorizeStaffRequest(req, 'canHandleCalls');
+  const tableParam = req.nextUrl.searchParams.get('table');
+
   const calls = await getAllWaiterCalls();
-  return NextResponse.json({ success: true, data: calls });
+
+  // Если авторизован персонал (официант / управляющий), отдаем все активные вызовы
+  if (auth.authorized) {
+    return NextResponse.json({ success: true, data: calls });
+  }
+
+  // Если запрос от гостя с указанием столика, отдаем только вызовы этого столика
+  if (tableParam) {
+    const tableNum = Number(tableParam);
+    if (Number.isInteger(tableNum) && tableNum > 0) {
+      const tableCalls = calls.filter((c) => c.tableNumber === tableNum);
+      return NextResponse.json({ success: true, data: tableCalls });
+    }
+  }
+
+  // Неавторизованному запросу без столика чужие вызовы не отдаются (предотвращение Data Exposure)
+  return NextResponse.json({ success: true, data: [] });
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {

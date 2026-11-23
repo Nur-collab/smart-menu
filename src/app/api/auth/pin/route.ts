@@ -57,11 +57,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       token,
     });
 
-    // Выставляем cookie для автоматической передачи браузером при запросах к API
+    // Выставляем защищенную cookie для автоматической передачи браузером при запросах к API
     response.cookies.set({
       name: 'aura_staff_token',
       value: token,
-      httpOnly: false, // Доступна для чтения и передачи в заголовках
+      httpOnly: true, // Защита от XSS и кражи токена через document.cookie
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',

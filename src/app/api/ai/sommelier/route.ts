@@ -2,11 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MENU_ITEMS } from '@/data/mockData';
 import { MenuItem } from '@/types/menu';
 import { AiRecommendRequest, AiRecommendResponse } from '@/types/ai';
+import { getClientIp, checkRateLimit, RATE_LIMITS } from '@/lib/security/rateLimiter';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    const ip = getClientIp(req);
+    const rateCheck = checkRateLimit(`ai_sommelier:${ip}`, RATE_LIMITS.AI_SOMMELIER);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Слишком много запросов к AI Сомелье. Пожалуйста, подождите ${rateCheck.retryAfterSeconds} сек.`,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rateCheck.retryAfterSeconds),
+          },
+        }
+      );
+    }
+
     const body = (await req.json()) as AiRecommendRequest;
     const { message = '', cartItemIds = [], language = 'ru' } = body;
 

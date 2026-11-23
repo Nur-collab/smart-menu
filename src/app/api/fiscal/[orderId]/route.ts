@@ -12,18 +12,25 @@ export async function GET(
   try {
     const { orderId } = await context.params;
 
+    const order = getOrderById(orderId);
+    if (!order) {
+      return NextResponse.json(
+        { error: `Заказ #${orderId} не найден` },
+        { status: 404 }
+      );
+    }
+
+    // Фискализация разрешена исключительно для оплаченных заказов
+    if (order.status !== 'paid') {
+      return NextResponse.json(
+        { error: `Заказ #${orderId} еще не оплачен (текущий статус: ${order.status}). Фискальный чек недоступен.` },
+        { status: 400 }
+      );
+    }
+
     let receipt = getFiscalReceiptByOrderId(orderId);
 
-    // Если чек еще не создан, но заказ существует, генерируем фискальный чек
     if (!receipt) {
-      const order = getOrderById(orderId);
-      if (!order) {
-        return NextResponse.json(
-          { error: `Заказ #${orderId} не найден` },
-          { status: 404 }
-        );
-      }
-
       receipt = generateFiscalReceiptForOrder(orderId) ?? undefined;
     }
 

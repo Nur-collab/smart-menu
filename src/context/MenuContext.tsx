@@ -253,10 +253,21 @@ export function MenuProvider({ children }: MenuProviderProps): React.JSX.Element
     setUserBonusBalance((prev) => Math.max(0, prev + amount));
   }, []);
 
-  // Синхронизация заказов с сервером (Neon PostgreSQL)
+  // Синхронизация заказов с сервером (Neon PostgreSQL) с учетом роли и столика
   const syncOrders = useCallback(async (): Promise<void> => {
     try {
-      const res = await fetch('/api/orders');
+      const token = typeof window !== 'undefined' ? sessionStorage.getItem('staff_session_token') : null;
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const url = token
+        ? '/api/orders'
+        : tableNumber
+        ? `/api/orders?table=${tableNumber}`
+        : '/api/orders';
+
+      const res = await fetch(url, { headers });
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
