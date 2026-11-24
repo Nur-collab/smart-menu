@@ -17,7 +17,9 @@ import {
   ShieldCheck,
   Sparkles,
   UtensilsCrossed,
-  Share2,
+  Copy,
+  Smartphone,
+  Wallet,
 } from 'lucide-react';
 
 interface SplitItemEntry {
@@ -29,22 +31,12 @@ interface SplitItemEntry {
   readonly optionsText?: string;
 }
 
-interface GuestItemAllocation {
-  readonly guestId: string;
-  readonly guestName: string;
-  readonly isPaid: boolean;
-  // itemId -> quantity (can be 0.5, 1, 2, etc.)
-  readonly shares: Record<string, number>;
-  readonly tipPercent: number;
-}
-
 export function SplitBillModal(): React.JSX.Element | null {
   const {
     activeModal,
     setActiveModal,
     tableNumber,
     cart,
-    cartSubtotal,
     activeOrder,
     callWaiter,
     cafeInfo,
@@ -52,12 +44,13 @@ export function SplitBillModal(): React.JSX.Element | null {
     t,
   } = useMenu();
 
-  const [splitMode, setSplitMode] = useState<'equal' | 'items'>('equal');
+  const [splitMode, setSplitMode] = useState<'equal' | 'items'>('items');
   const [equalGuestCount, setEqualGuestCount] = useState<number>(3);
   const [equalTipPercent, setEqualTipPercent] = useState<number>(10);
   const [equalPaidMap, setEqualPaidMap] = useState<Record<number, boolean>>({});
   const [selectedGuestQr, setSelectedGuestQr] = useState<string | null>(null);
   const [waiterCalledNotice, setWaiterCalledNotice] = useState<boolean>(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // By-Items State
   const [itemGuests, setItemGuests] = useState<readonly string[]>([
@@ -78,6 +71,8 @@ export function SplitBillModal(): React.JSX.Element | null {
     2: 10,
   });
   const [itemGuestPaid, setItemGuestPaid] = useState<Record<number, boolean>>({});
+
+  const cashierPhoneNumber = '+996 (555) 12-34-56';
 
   // 1. Resolve source items (active placed order takes priority, fallback to cart)
   const sourceItems: readonly SplitItemEntry[] = useMemo(() => {
@@ -101,8 +96,6 @@ export function SplitBillModal(): React.JSX.Element | null {
     }));
   }, [activeOrder, cart, language]);
 
-  if (activeModal !== 'split') return null;
-
   const baseSubtotal = sourceItems.reduce((acc, i) => acc + i.total, 0);
   const serviceFeePercent = 10;
   const serviceFeeAmount = Math.round((baseSubtotal * serviceFeePercent) / 100);
@@ -114,7 +107,6 @@ export function SplitBillModal(): React.JSX.Element | null {
   const equalRemainder = equalTotalBill % equalGuestCount;
 
   const equalGuestsList = Array.from({ length: equalGuestCount }, (_, idx) => {
-    // Distribute remainder so sum strictly matches equalTotalBill
     const amount = idx < equalRemainder ? equalBaseShare + 1 : equalBaseShare;
     return {
       index: idx,
@@ -156,14 +148,37 @@ export function SplitBillModal(): React.JSX.Element | null {
   const totalAllocatedSubtotal = itemGuests.reduce((acc, _, idx) => acc + getGuestSubtotal(idx), 0);
   const unallocatedAmount = Math.max(0, baseSubtotal - totalAllocatedSubtotal);
 
-  // Modifiers for by-items
+  // Assigned items list for active guest
+  const assignedItemsForActiveGuest = useMemo(() => {
+    const guestMap = itemAllocations[activeGuestIdx] || {};
+    return sourceItems
+      .map((item) => {
+        const share = guestMap[item.id] || 0;
+        if (share <= 0) return null;
+        return {
+          ...item,
+          share,
+          shareTotal: Math.round(share * item.unitPrice),
+        };
+      })
+      .filter((i): i is NonNullable<typeof i> => i !== null);
+  }, [sourceItems, itemAllocations, activeGuestIdx]);
+
+  const handleCopy = (text: string, id: string): void => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2500);
+  };
+
   const handleItemShareChange = (itemId: string, delta: number, maxQty: number): void => {
     const currentAllocated = getItemTotalAllocated(itemId);
     const guestCurrent = itemAllocations[activeGuestIdx]?.[itemId] || 0;
     const nextVal = Math.max(0, guestCurrent + delta);
 
     if (delta > 0 && currentAllocated + delta > maxQty) {
-      return; // Can't allocate more than total item quantity
+      return;
     }
 
     setItemAllocations((prev) => ({
@@ -180,7 +195,6 @@ export function SplitBillModal(): React.JSX.Element | null {
     const guestCurrent = itemAllocations[activeGuestIdx]?.[itemId] || 0;
 
     if (guestCurrent > 0) {
-      // Toggle off
       handleItemShareChange(itemId, -guestCurrent, maxQty);
     } else {
       if (currentAllocated + 0.5 <= maxQty) {
@@ -203,6 +217,8 @@ export function SplitBillModal(): React.JSX.Element | null {
     setWaiterCalledNotice(true);
     setTimeout(() => setWaiterCalledNotice(false), 4500);
   };
+
+  if (activeModal !== 'split') return null;
 
   return (
     <div
@@ -249,214 +265,68 @@ export function SplitBillModal(): React.JSX.Element | null {
             </div>
             <div>
               <span className="font-bold text-[#24211D] dark:text-[#F4F4F5] block">
-                {activeOrder ? `${language === 'en' ? 'Active Order' : 'Активный заказ столика'} #${activeOrder.id}` : (language === 'en' ? 'Cart order preview' : 'Текущая корзина столика')}
+                {activeOrder ? 'Заказ на столе' : 'Предварительный чек (корзина)'}
               </span>
-              <span className="text-[11px] text-[#7E766D] dark:text-[#A1A1AA]">
-                {sourceItems.length} {t('itemsCount')} • {t('splitServiceFeeNotice')}
+              <span className="text-[10px] text-[#A8A095] dark:text-[#71717A]">
+                {sourceItems.length} поз. • {t('splitServiceFeeNotice')}
               </span>
             </div>
           </div>
           <div className="text-right">
-            <span className="text-sm font-black text-[#B86B3E] dark:text-[#E07A43] block">
-              {baseSubtotal + serviceFeeAmount} {cafeInfo.currency}
+            <span className="text-[10px] text-[#A8A095] dark:text-[#71717A] block">
+              Итого за стол:
             </span>
-            <span className="text-[10px] text-[#7E766D] dark:text-[#A1A1AA]">
-              {language === 'en' ? 'with service' : 'с обслуживанием'}
+            <span className="text-sm font-black text-[#B86B3E] dark:text-[#E07A43]">
+              {baseSubtotal + serviceFeeAmount} {cafeInfo.currency}
             </span>
           </div>
         </div>
 
-        {/* Переключатель режимов: Поровну / По позициям */}
-        <div className="grid grid-cols-2 gap-2 bg-[#F4EBE3] dark:bg-[#27272A]/70 p-1 rounded-2xl border border-[#E8DDD2] dark:border-[#3F3F46]">
-          <button
-            type="button"
-            onClick={() => setSplitMode('equal')}
-            className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              splitMode === 'equal'
-                ? 'bg-white dark:bg-[#18181B] text-[#24211D] dark:text-[#F4F4F5] shadow-sm'
-                : 'text-[#7E766D] dark:text-[#A1A1AA] hover:text-[#24211D] dark:hover:text-[#F4F4F5]'
-            }`}
-          >
-            <Divide className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
-            <span>{t('splitModeEqual')}</span>
-          </button>
+        {/* Переключатель режимов */}
+        <div className="grid grid-cols-2 gap-2 bg-[#F4EBE3] dark:bg-[#27272A] p-1 rounded-2xl">
           <button
             type="button"
             onClick={() => setSplitMode('items')}
             className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               splitMode === 'items'
-                ? 'bg-white dark:bg-[#18181B] text-[#24211D] dark:text-[#F4F4F5] shadow-sm'
+                ? 'bg-white dark:bg-[#18181B] text-[#B86B3E] dark:text-[#E07A43] shadow-xs'
                 : 'text-[#7E766D] dark:text-[#A1A1AA] hover:text-[#24211D] dark:hover:text-[#F4F4F5]'
             }`}
           >
-            <Receipt className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
+            <UtensilsCrossed className="w-3.5 h-3.5" />
             <span>{t('splitModeByItems')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSplitMode('equal')}
+            className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              splitMode === 'equal'
+                ? 'bg-white dark:bg-[#18181B] text-[#B86B3E] dark:text-[#E07A43] shadow-xs'
+                : 'text-[#7E766D] dark:text-[#A1A1AA] hover:text-[#24211D] dark:hover:text-[#F4F4F5]'
+            }`}
+          >
+            <Divide className="w-3.5 h-3.5" />
+            <span>{t('splitModeEqual')}</span>
           </button>
         </div>
 
-        {/* ---------------- РЕЖИМ 1: ПОРОВНУ НА ВСЕХ ---------------- */}
-        {splitMode === 'equal' && (
-          <div className="space-y-4">
-            {/* Количество гостей */}
-            <div className="bg-white dark:bg-[#1C1C1F] border border-[#EFE9E0] dark:border-[#27272A] rounded-2xl p-4 space-y-3 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#24211D] dark:text-[#F4F4F5] flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
-                  <span>{t('splitGuestsCount')}</span>
-                </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEqualGuestCount((c) => Math.max(2, c - 1))}
-                    disabled={equalGuestCount <= 2}
-                    className="w-7 h-7 rounded-lg bg-[#FBF9F5] dark:bg-[#27272A] border border-[#EFE9E0] dark:border-[#3F3F46] flex items-center justify-center text-[#24211D] dark:text-[#F4F4F5] disabled:opacity-30 cursor-pointer"
-                  >
-                    <Minus className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="text-base font-black text-[#B86B3E] dark:text-[#E07A43] w-5 text-center">
-                    {equalGuestCount}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setEqualGuestCount((c) => Math.min(10, c + 1))}
-                    disabled={equalGuestCount >= 10}
-                    className="w-7 h-7 rounded-lg bg-[#FBF9F5] dark:bg-[#27272A] border border-[#EFE9E0] dark:border-[#3F3F46] flex items-center justify-center text-[#24211D] dark:text-[#F4F4F5] disabled:opacity-30 cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Быстрые кнопки */}
-              <div className="flex items-center gap-1.5">
-                {[2, 3, 4, 5, 6, 8].map((count) => (
-                  <button
-                    key={count}
-                    type="button"
-                    onClick={() => setEqualGuestCount(count)}
-                    className={`flex-1 py-1 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                      equalGuestCount === count
-                        ? 'bg-[#B86B3E] text-white border-[#B86B3E] shadow-sm'
-                        : 'bg-[#FBF9F5] dark:bg-[#27272A] text-[#7E766D] dark:text-[#A1A1AA] border-[#EFE9E0] dark:border-[#3F3F46] hover:border-[#DFD5C7]'
-                    }`}
-                  >
-                    {count}
-                  </button>
-                ))}
-              </div>
-
-              {/* Чаевые для равного сплита */}
-              <div className="pt-2 border-t border-[#EFE9E0] dark:border-[#27272A] flex items-center justify-between">
-                <span className="text-xs text-[#7E766D] dark:text-[#A1A1AA] flex items-center gap-1">
-                  <HeartHandshake className="w-3.5 h-3.5 text-[#B86B3E] dark:text-[#E07A43]" />
-                  <span>{t('tipAmount')}:</span>
-                </span>
-                <div className="flex gap-1">
-                  {[0, 5, 10, 15].map((percent) => (
-                    <button
-                      key={percent}
-                      type="button"
-                      onClick={() => setEqualTipPercent(percent)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
-                        equalTipPercent === percent
-                          ? 'bg-[#B86B3E] text-white border-[#B86B3E]'
-                          : 'bg-[#FBF9F5] dark:bg-[#27272A] text-[#7E766D] dark:text-[#A1A1AA] border-[#EFE9E0] dark:border-[#3F3F46]'
-                      }`}
-                    >
-                      {percent}%
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Карточки долей гостей */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-[11px] font-bold text-[#8C7A6B] dark:text-[#A1A1AA] uppercase tracking-wider">
-                <span>{language === 'en' ? 'Guest Shares' : 'Доли к оплате'} ({equalGuestsList.filter((g) => g.isPaid).length}/{equalGuestCount})</span>
-                <span>{t('splitPerPerson')} ~{equalBaseShare} {cafeInfo.currency}</span>
-              </div>
-
-              {equalGuestsList.map((guest) => (
-                <div
-                  key={guest.id}
-                  className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                    guest.isPaid
-                      ? 'bg-[#EBF5ED] dark:bg-[#062D15] border-[#D5EADB] dark:border-[#166534]'
-                      : 'bg-white dark:bg-[#1C1C1F] border-[#EFE9E0] dark:border-[#27272A] shadow-xs'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold ${
-                        guest.isPaid
-                          ? 'bg-[#2F6B42] dark:bg-[#166534] text-white'
-                          : 'bg-[#F4EBE3] dark:bg-[#2C1810] text-[#B86B3E] dark:text-[#E07A43]'
-                      }`}
-                    >
-                      {guest.isPaid ? <Check className="w-4 h-4 stroke-[3]" /> : guest.index + 1}
-                    </div>
-                    <div>
-                      <h5 className="text-xs font-bold text-[#24211D] dark:text-[#F4F4F5]">
-                        {guest.name}
-                      </h5>
-                      <span className="text-xs font-black text-[#B86B3E] dark:text-[#E07A43]">
-                        {guest.amount} {cafeInfo.currency}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSelectedGuestQr(selectedGuestQr === guest.id ? null : guest.id)
-                      }
-                      className="p-2 text-[#24211D] dark:text-[#F4F4F5] bg-[#FBF9F5] dark:bg-[#27272A] hover:bg-[#F4EBE3] dark:hover:bg-[#3F3F46] border border-[#EFE9E0] dark:border-[#3F3F46] rounded-xl transition-colors cursor-pointer"
-                      title="Показать персональный QR код (ELQR / MBANK)"
-                    >
-                      <QrCode className="w-4 h-4 text-[#2F6B42] dark:text-[#4ADE80]" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setEqualPaidMap((prev) => ({
-                          ...prev,
-                          [guest.index]: !prev[guest.index],
-                        }))
-                      }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                        guest.isPaid
-                          ? 'bg-[#2F6B42]/10 dark:bg-[#166534]/40 text-[#2F6B42] dark:text-[#4ADE80] border-[#2F6B42]/30 dark:border-[#166534]'
-                          : 'bg-[#B86B3E] hover:bg-[#A3592E] text-white border-[#B86B3E]'
-                      }`}
-                    >
-                      {guest.isPaid ? 'Оплачено ✓' : 'Отметить'}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ---------------- РЕЖИМ 2: ПО БЛЮДАМ / ПОЗИЦИЯМ ---------------- */}
+        {/* ---------------- РЕЖИМ 1: ПО ПОЗИЦИЯМ (БЛЮДАМ) ---------------- */}
         {splitMode === 'items' && (
           <div className="space-y-4">
             {/* Панель выбора текущего гостя */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-[#24211D] dark:text-[#F4F4F5]">
                 <span>{language === 'en' ? 'Select Guest to assign dishes:' : 'Выберите гостя для распределения блюд:'}</span>
-                <button
-                  type="button"
-                  onClick={handleAddGuest}
-                  disabled={itemGuests.length >= 8}
-                  className="inline-flex items-center gap-1 text-[11px] text-[#B86B3E] dark:text-[#E07A43] hover:underline cursor-pointer disabled:opacity-40"
-                >
-                  <Plus className="w-3 h-3" />
-                  <span>{language === 'en' ? 'Add Guest' : '+ Гость'}</span>
-                </button>
+                {itemGuests.length < 8 && (
+                  <button
+                    type="button"
+                    onClick={handleAddGuest}
+                    className="text-[11px] text-[#B86B3E] dark:text-[#E07A43] hover:underline flex items-center gap-0.5 font-bold cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>{language === 'en' ? 'Add Guest' : '+ Гость'}</span>
+                  </button>
+                )}
               </div>
 
               {/* Таблетки гостей */}
@@ -500,8 +370,8 @@ export function SplitBillModal(): React.JSX.Element | null {
               </span>
             </div>
 
-            {/* Список блюд для привязки к текущему гостю */}
-            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+            {/* Список всех блюд заказа для распределения */}
+            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
               {sourceItems.map((item) => {
                 const totalAlloc = getItemTotalAllocated(item.id);
                 const guestPortion = itemAllocations[activeGuestIdx]?.[item.id] || 0;
@@ -572,21 +442,66 @@ export function SplitBillModal(): React.JSX.Element | null {
               })}
             </div>
 
-            {/* Карточка расчета для активного гостя */}
-            <div className="bg-[#FAF6F0] dark:bg-[#1E1B18] border border-[#EFE9E0] dark:border-[#2E2822] rounded-2xl p-4 space-y-2.5">
-              <div className="flex items-center justify-between text-xs font-bold text-[#24211D] dark:text-[#F4F4F5]">
-                <span>{itemGuests[activeGuestIdx]} — {t('splitMyShare')}:</span>
-                <span className="text-base font-black text-[#B86B3E] dark:text-[#E07A43]">
-                  {currentGuestTotal} {cafeInfo.currency}
-                </span>
+            {/* ПЕРСОНАЛЬНЫЙ ЧЕК АКТИВНОГО ГОСТЯ (НА СКОЛЬКО ОН СЪЕЛ) */}
+            <div className="bg-[#FAF6F0] dark:bg-[#1E1B18] border-2 border-[#EFE9E0] dark:border-[#2E2822] rounded-2xl p-4 space-y-3 shadow-sm">
+              <div className="flex items-center justify-between pb-2 border-b border-[#EFE9E0] dark:border-[#2E2822]">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-[#B86B3E] text-white flex items-center justify-center text-xs font-bold">
+                    {activeGuestIdx + 1}
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-[#24211D] dark:text-[#F4F4F5]">
+                      {itemGuests[activeGuestIdx]} • {t('splitGuestDishes')}
+                    </h4>
+                    <span className="text-[10px] text-[#8C7A6B] dark:text-[#A1A1AA]">
+                      {assignedItemsForActiveGuest.length} блюд(а) выбрано
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-[10px] text-[#8C7A6B] dark:text-[#A1A1AA] block">
+                    {t('splitTotalToTransfer')}:
+                  </span>
+                  <span className="text-lg font-black text-[#B86B3E] dark:text-[#E07A43]">
+                    {currentGuestTotal} {cafeInfo.currency}
+                  </span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-[11px] text-[#7E766D] dark:text-[#A1A1AA] pt-1 border-t border-[#EFE9E0] dark:border-[#2E2822]">
-                <div>Блюда: <strong className="text-[#24211D] dark:text-[#F4F4F5]">{currentGuestSubtotal} {cafeInfo.currency}</strong></div>
-                <div>Сервис (10%): <strong className="text-[#24211D] dark:text-[#F4F4F5]">+{currentGuestServiceFee} {cafeInfo.currency}</strong></div>
+              {/* Детализация выбранных блюд */}
+              {assignedItemsForActiveGuest.length === 0 ? (
+                <div className="p-3 bg-white/70 dark:bg-[#27272A]/50 rounded-xl text-center text-xs text-[#7E766D] dark:text-[#A1A1AA] border border-dashed border-[#EFE9E0] dark:border-[#3F3F46]">
+                  {t('splitNoItemsYet')}
+                </div>
+              ) : (
+                <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                  {assignedItemsForActiveGuest.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-white/60 dark:bg-[#27272A]/40 border border-[#EFE9E0]/60 dark:border-[#3F3F46]/50"
+                    >
+                      <div className="min-w-0 flex-1 truncate pr-2 text-[#24211D] dark:text-[#F4F4F5]">
+                        <span>{item.name}</span>
+                        <span className="ml-1 text-[10px] font-bold text-[#B86B3E] dark:text-[#E07A43]">
+                          × {item.share === 0.5 ? '½' : item.share}
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold text-[#24211D] dark:text-[#F4F4F5] shrink-0 font-mono">
+                        {item.shareTotal} {cafeInfo.currency}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Расчет: Блюда + Сервис 10% + Чаевые */}
+              <div className="grid grid-cols-2 gap-2 text-[11px] text-[#7E766D] dark:text-[#A1A1AA] pt-2 border-t border-[#EFE9E0] dark:border-[#2E2822]">
+                <div>Сумма блюд: <strong className="text-[#24211D] dark:text-[#F4F4F5]">{currentGuestSubtotal} {cafeInfo.currency}</strong></div>
+                <div>Сервис 10%: <strong className="text-[#24211D] dark:text-[#F4F4F5]">+{currentGuestServiceFee} {cafeInfo.currency}</strong></div>
               </div>
 
-              {/* Чаевые */}
+              {/* Выбор чаевых официанту */}
               <div className="flex items-center justify-between pt-1">
                 <span className="text-[11px] text-[#7E766D] dark:text-[#A1A1AA] flex items-center gap-1">
                   <HeartHandshake className="w-3.5 h-3.5 text-[#B86B3E] dark:text-[#E07A43]" />
@@ -615,7 +530,29 @@ export function SplitBillModal(): React.JSX.Element | null {
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center gap-2">
+              {/* Кнопки перевода кассиру для активного гостя */}
+              <div className="pt-2 flex flex-wrap sm:flex-nowrap items-center gap-2">
+                {/* Скопировать точную сумму */}
+                <button
+                  type="button"
+                  onClick={() => handleCopy(currentGuestTotal.toString(), `item-${activeGuestIdx}`)}
+                  className="flex-1 bg-white dark:bg-[#18181B] hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] text-[#24211D] dark:text-[#F4F4F5] border border-[#EFE9E0] dark:border-[#27272A] py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                  title="Скопировать сумму в буфер обмена для вставки в приложение банка"
+                >
+                  {copiedId === `item-${activeGuestIdx}` ? (
+                    <>
+                      <Check className="w-4 h-4 text-[#2F6B42] dark:text-[#4ADE80]" />
+                      <span className="text-[#2F6B42] dark:text-[#4ADE80]">{t('splitCopied')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
+                      <span>{t('splitCopyAmount')} ({currentGuestTotal} {cafeInfo.currency})</span>
+                    </>
+                  )}
+                </button>
+
+                {/* QR кассира */}
                 <button
                   type="button"
                   onClick={() =>
@@ -625,12 +562,13 @@ export function SplitBillModal(): React.JSX.Element | null {
                         : `item-guest-${activeGuestIdx}`
                     )
                   }
-                  className="flex-1 bg-white dark:bg-[#18181B] hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] text-[#24211D] dark:text-[#F4F4F5] border border-[#EFE9E0] dark:border-[#27272A] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                  className="p-2.5 bg-white dark:bg-[#18181B] hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] text-[#24211D] dark:text-[#F4F4F5] border border-[#EFE9E0] dark:border-[#27272A] rounded-xl transition-all cursor-pointer shadow-2xs"
+                  title={t('splitCashierQr')}
                 >
                   <QrCode className="w-4 h-4 text-[#2F6B42] dark:text-[#4ADE80]" />
-                  <span>Показать мой QR к оплате</span>
                 </button>
 
+                {/* Отметить: Перевел кассиру */}
                 <button
                   type="button"
                   onClick={() =>
@@ -639,26 +577,189 @@ export function SplitBillModal(): React.JSX.Element | null {
                       [activeGuestIdx]: !prev[activeGuestIdx],
                     }))
                   }
-                  className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                  className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer shrink-0 ${
                     itemGuestPaid[activeGuestIdx]
                       ? 'bg-[#2F6B42] text-white border-[#2F6B42]'
                       : 'bg-[#B86B3E] hover:bg-[#A3592E] text-white border-[#B86B3E]'
                   }`}
                 >
-                  {itemGuestPaid[activeGuestIdx] ? 'Оплачено ✓' : 'Отметить'}
+                  {itemGuestPaid[activeGuestIdx] ? t('splitMarkPaidCashier') : 'Отметить перевод'}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* QR-контейнер для оплаты доли (ELQR / MBANK) */}
+        {/* ---------------- РЕЖИМ 2: ПОРОBНУ НА ВСЕХ ---------------- */}
+        {splitMode === 'equal' && (
+          <div className="space-y-4">
+            {/* Количество гостей */}
+            <div className="bg-white dark:bg-[#1C1C1F] border border-[#EFE9E0] dark:border-[#27272A] rounded-2xl p-4 space-y-3 shadow-xs">
+              <div className="flex items-center justify-between text-xs font-bold text-[#24211D] dark:text-[#F4F4F5]">
+                <span className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
+                  <span>{t('splitGuestsCount')}</span>
+                </span>
+                <span className="text-base font-black text-[#B86B3E] dark:text-[#E07A43]">
+                  {equalGuestCount} {language === 'en' ? 'guests' : language === 'kg' ? 'конок' : 'персоны'}
+                </span>
+              </div>
+
+              {/* Кнопки выбора количества гостей */}
+              <div className="flex items-center justify-between gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setEqualGuestCount((prev) => Math.max(2, prev - 1))}
+                  className="w-10 h-10 rounded-xl bg-[#FBF9F5] dark:bg-[#27272A] border border-[#EFE9E0] dark:border-[#3F3F46] flex items-center justify-center text-[#24211D] dark:text-[#F4F4F5] hover:bg-[#F4EBE3] dark:hover:bg-[#3F3F46] cursor-pointer"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+
+                <div className="flex items-center gap-1 overflow-x-auto py-1">
+                  {[2, 3, 4, 5, 6, 8].map((count) => (
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => setEqualGuestCount(count)}
+                      className={`w-9 h-9 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                        equalGuestCount === count
+                          ? 'bg-[#B86B3E] text-white border-[#B86B3E] shadow-xs'
+                          : 'bg-[#FBF9F5] dark:bg-[#27272A] text-[#7E766D] dark:text-[#A1A1AA] border-[#EFE9E0] dark:border-[#3F3F46]'
+                      }`}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setEqualGuestCount((prev) => Math.min(10, prev + 1))}
+                  className="w-10 h-10 rounded-xl bg-[#FBF9F5] dark:bg-[#27272A] border border-[#EFE9E0] dark:border-[#3F3F46] flex items-center justify-center text-[#24211D] dark:text-[#F4F4F5] hover:bg-[#F4EBE3] dark:hover:bg-[#3F3F46] cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Чаевые */}
+              <div className="flex items-center justify-between pt-2 border-t border-[#EFE9E0] dark:border-[#27272A]">
+                <span className="text-xs text-[#7E766D] dark:text-[#A1A1AA] flex items-center gap-1">
+                  <HeartHandshake className="w-3.5 h-3.5 text-[#B86B3E] dark:text-[#E07A43]" />
+                  <span>{t('tipAmount')}:</span>
+                </span>
+                <div className="flex gap-1">
+                  {[0, 5, 10, 15].map((percent) => (
+                    <button
+                      key={percent}
+                      type="button"
+                      onClick={() => setEqualTipPercent(percent)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
+                        equalTipPercent === percent
+                          ? 'bg-[#B86B3E] text-white border-[#B86B3E]'
+                          : 'bg-[#FBF9F5] dark:bg-[#27272A] text-[#7E766D] dark:text-[#A1A1AA] border-[#EFE9E0] dark:border-[#3F3F46]'
+                      }`}
+                    >
+                      {percent}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Карточки долей гостей */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-bold text-[#8C7A6B] dark:text-[#A1A1AA] uppercase tracking-wider">
+                <span>{language === 'en' ? 'Guest Shares' : 'Доли к оплате'} ({equalGuestsList.filter((g) => g.isPaid).length}/{equalGuestCount})</span>
+                <span>{t('splitPerPerson')} ~{equalBaseShare} {cafeInfo.currency}</span>
+              </div>
+
+              {equalGuestsList.map((guest) => (
+                <div
+                  key={guest.id}
+                  className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                    guest.isPaid
+                      ? 'bg-[#EBF5ED] dark:bg-[#062D15] border-[#D5EADB] dark:border-[#166534]'
+                      : 'bg-white dark:bg-[#1C1C1F] border-[#EFE9E0] dark:border-[#27272A] shadow-xs'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold ${
+                        guest.isPaid
+                          ? 'bg-[#2F6B42] dark:bg-[#166534] text-white'
+                          : 'bg-[#F4EBE3] dark:bg-[#2C1810] text-[#B86B3E] dark:text-[#E07A43]'
+                      }`}
+                    >
+                      {guest.isPaid ? <Check className="w-4 h-4 stroke-[3]" /> : guest.index + 1}
+                    </div>
+                    <div>
+                      <h5 className="text-xs font-bold text-[#24211D] dark:text-[#F4F4F5]">
+                        {guest.name}
+                      </h5>
+                      <span className="text-xs font-black text-[#B86B3E] dark:text-[#E07A43]">
+                        {guest.amount} {cafeInfo.currency}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    {/* Кнопка скопировать сумму */}
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(guest.amount.toString(), guest.id)}
+                      className="p-2 text-[#24211D] dark:text-[#F4F4F5] bg-[#FBF9F5] dark:bg-[#27272A] hover:bg-[#F4EBE3] dark:hover:bg-[#3F3F46] border border-[#EFE9E0] dark:border-[#3F3F46] rounded-xl transition-colors cursor-pointer"
+                      title="Скопировать сумму в буфер обмена"
+                    >
+                      {copiedId === guest.id ? (
+                        <Check className="w-4 h-4 text-[#2F6B42] dark:text-[#4ADE80]" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-[#B86B3E] dark:text-[#E07A43]" />
+                      )}
+                    </button>
+
+                    {/* Кнопка QR кассира */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedGuestQr(selectedGuestQr === guest.id ? null : guest.id)
+                      }
+                      className="p-2 text-[#24211D] dark:text-[#F4F4F5] bg-[#FBF9F5] dark:bg-[#27272A] hover:bg-[#F4EBE3] dark:hover:bg-[#3F3F46] border border-[#EFE9E0] dark:border-[#3F3F46] rounded-xl transition-colors cursor-pointer"
+                      title={t('splitCashierQr')}
+                    >
+                      <QrCode className="w-4 h-4 text-[#2F6B42] dark:text-[#4ADE80]" />
+                    </button>
+
+                    {/* Отметить: Перевел кассиру */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEqualPaidMap((prev) => ({
+                          ...prev,
+                          [guest.index]: !prev[guest.index],
+                        }))
+                      }
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                        guest.isPaid
+                          ? 'bg-[#2F6B42]/10 dark:bg-[#166534]/40 text-[#2F6B42] dark:text-[#4ADE80] border-[#2F6B42]/30 dark:border-[#166534]'
+                          : 'bg-[#B86B3E] hover:bg-[#A3592E] text-white border-[#B86B3E]'
+                      }`}
+                    >
+                      {guest.isPaid ? t('splitMarkPaidCashier') : 'Отметить'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ---------------- ВИДЖЕТ: QR-КОД И РЕКВИЗИТЫ КАССИРА ДЛЯ ПЕРЕВОДА ---------------- */}
         {selectedGuestQr && (
-          <div className="bg-white dark:bg-[#1C1C1F] border border-[#EFE9E0] dark:border-[#27272A] rounded-2xl p-4 text-center space-y-2 shadow-md animate-fadeIn">
+          <div className="bg-white dark:bg-[#1C1C1F] border-2 border-[#B86B3E] dark:border-[#E07A43] rounded-2xl p-4 text-center space-y-3 shadow-lg animate-fadeIn">
             <div className="flex items-center justify-between pb-2 border-b border-[#EFE9E0] dark:border-[#27272A]">
               <span className="text-xs font-bold text-[#24211D] dark:text-[#F4F4F5] flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-[#2F6B42] dark:text-[#4ADE80]" />
-                <span>Национальный ELQR НБКР • Столик №{tableNumber}</span>
+                <span>Оплата кассиру • Столик №{tableNumber}</span>
               </span>
               <button
                 type="button"
@@ -669,18 +770,51 @@ export function SplitBillModal(): React.JSX.Element | null {
               </button>
             </div>
 
+            {/* QR код заведения / кассы */}
             <div className="w-44 h-44 bg-white rounded-2xl mx-auto flex flex-col items-center justify-center p-3 border-2 border-dashed border-[#B86B3E] shadow-xs">
               <QrCode className="w-24 h-24 text-[#24211D]" />
               <div className="mt-1.5 text-center">
-                <span className="text-[10px] font-mono text-[#8C7A6B] block">Стол №{tableNumber} • Сплит</span>
-                <span className="text-xs font-black text-[#B86B3E]">
+                <span className="text-[10px] font-mono text-[#8C7A6B] block">Касса заведения • Стол №{tableNumber}</span>
+                <span className="text-sm font-black text-[#B86B3E]">
                   {splitMode === 'equal' ? equalBaseShare : currentGuestTotal} {cafeInfo.currency}
                 </span>
               </div>
             </div>
 
+            {/* Номер телефона кассы для прямого перевода */}
+            <div className="bg-[#FAF6F0] dark:bg-[#27272A] p-2.5 rounded-xl border border-[#EFE9E0] dark:border-[#3F3F46] flex items-center justify-between text-xs">
+              <div className="text-left">
+                <span className="text-[10px] text-[#7E766D] dark:text-[#A1A1AA] block">
+                  {t('splitCashierMbank')}
+                </span>
+                <span className="font-mono font-bold text-[#24211D] dark:text-[#F4F4F5]">
+                  {cashierPhoneNumber}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy(cashierPhoneNumber, 'cashier-phone')}
+                className="px-2 py-1 rounded-lg bg-white dark:bg-[#18181B] text-[#B86B3E] dark:text-[#E07A43] border border-[#EFE9E0] dark:border-[#3F3F46] text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+              >
+                {copiedId === 'cashier-phone' ? (
+                  <>
+                    <Check className="w-3 h-3 text-[#2F6B42]" />
+                    <span>Скопировано</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3" />
+                    <span>Копировать</span>
+                  </>
+                )}
+              </button>
+            </div>
+
             <p className="text-[11px] text-[#7E766D] dark:text-[#A1A1AA] leading-relaxed">
-              Отсканируйте камерой смартфона в любом банковском приложении Кыргызстана (MBANK, О!Деньги, Optima, Demir, Бакай, Halyk).
+              Отсканируйте камерой смартфона в приложении банка (MBANK, О!Деньги, Optima, Demir, Бакай, Halyk) или переведите кассиру ровно{' '}
+              <strong className="text-[#24211D] dark:text-[#F4F4F5]">
+                {splitMode === 'equal' ? equalBaseShare : currentGuestTotal} {cafeInfo.currency}
+              </strong>.
             </p>
           </div>
         )}

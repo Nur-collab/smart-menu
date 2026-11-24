@@ -164,6 +164,15 @@ export interface Translations {
   readonly splitAskWaiterBill: string;
   readonly splitServiceFeeNotice: string;
   readonly splitShareHalf: string;
+  readonly splitCopyAmount: string;
+  readonly splitCopied: string;
+  readonly splitCashierTransfer: string;
+  readonly splitCashierQr: string;
+  readonly splitMarkPaidCashier: string;
+  readonly splitGuestDishes: string;
+  readonly splitTotalToTransfer: string;
+  readonly splitNoItemsYet: string;
+  readonly splitCashierMbank: string;
 }
 
 export const DICTIONARY: Record<Language, Translations> = {
@@ -316,6 +325,15 @@ export const DICTIONARY: Record<Language, Translations> = {
     splitAskWaiterBill: 'Попросить раздельный счет у официанта',
     splitServiceFeeNotice: 'Включая 10% за обслуживание',
     splitShareHalf: '1/2 (пополам)',
+    splitCopyAmount: 'Скопировать сумму',
+    splitCopied: 'Сумма скопирована ✓',
+    splitCashierTransfer: 'Перевод кассиру',
+    splitCashierQr: 'QR кассира для перевода',
+    splitMarkPaidCashier: 'Перевёл кассиру ✓',
+    splitGuestDishes: 'Заказ гостя (на сколько поел)',
+    splitTotalToTransfer: 'Итого к переводу кассиру',
+    splitNoItemsYet: 'Нажмите «+» у блюд выше, чтобы назначить позиции этому гостю',
+    splitCashierMbank: 'MBANK кассы:',
   },
 
   kg: {
@@ -467,6 +485,15 @@ export const DICTIONARY: Record<Language, Translations> = {
     splitAskWaiterBill: 'Официанттан өзүнчө эсеп суроо',
     splitServiceFeeNotice: '10% тейлөө кызматы менен',
     splitShareHalf: '1/2 (жарымы)',
+    splitCopyAmount: 'Сумманы көчүрүү',
+    splitCopied: 'Сумма көчүрүлдү ✓',
+    splitCashierTransfer: 'Кассирге которуу',
+    splitCashierQr: 'Которуу үчүн кассанын QR-коду',
+    splitMarkPaidCashier: 'Кассирге которулду ✓',
+    splitGuestDishes: 'Коноктун буйрутмасы (жеген тамактары)',
+    splitTotalToTransfer: 'Кассирге которулуучу сумма',
+    splitNoItemsYet: 'Бул конокко тамактарды кошуу үчүн жогорудагы «+» баскычын басыңыз',
+    splitCashierMbank: 'Кассанын MBANK номери:',
   },
 
   en: {
@@ -618,6 +645,15 @@ export const DICTIONARY: Record<Language, Translations> = {
     splitAskWaiterBill: 'Ask waiter for split bill',
     splitServiceFeeNotice: 'Including 10% service fee',
     splitShareHalf: '1/2 (half)',
+    splitCopyAmount: 'Copy amount',
+    splitCopied: 'Amount copied ✓',
+    splitCashierTransfer: 'Transfer to Cashier',
+    splitCashierQr: 'Cashier QR for transfer',
+    splitMarkPaidCashier: 'Transferred to cashier ✓',
+    splitGuestDishes: 'Guest Order (dishes consumed)',
+    splitTotalToTransfer: 'Total to transfer to cashier',
+    splitNoItemsYet: 'Tap "+" on dishes above to assign to this guest',
+    splitCashierMbank: 'Cashier MBANK:',
   },
 };
 
