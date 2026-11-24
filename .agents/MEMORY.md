@@ -14,15 +14,17 @@
   - DB Seed: `npx tsx prisma/seed.ts`
 
 ## 2. Active Work State
-- **Current Status:** Split Bill (Разделение счета) in dual modes (Equal & By-Items) deployed to production (`91e2053`).
+- **Current Status:** Split Bill (Разделение счета) with Guest Consumption Breakdown & Direct Cashier Transfer deployed to production (`1c3e374`).
 - **Enterprise Features:**
   - Split Bill Module (`SplitBillModal.tsx`):
-    - Mode 1 (Equal Split / Поровну): 2-10 guests stepper & quick pills, tip selection (0%, 5%, 10%, 15%), integer remainder distribution ensuring `sum(shares) === total` down to 1 som, per-person payment cards, "Оплачено ✓" status tracking, national ELQR/MBANK expandable payment QR code, waiter bill request integration.
-    - Mode 2 (Itemized Split / По позициям): Dynamic guest management (up to 8 guests), individual dish portion counters, "½" fractional sharing button for teapots and shared appetizers, real-time unallocated sum tracker with visual badge ("Все блюда распределены!"), individual subtotal + 10% service charge + custom tip computation, personal ELQR/MBANK QR code generation.
-    - Dual Source Support: seamlessly operates on either active placed order (`activeOrder.items`) or unplaced cart (`cart.items`).
-    - Trilingual dictionary integration (`ru`, `kg`, `en`) and native Light/Dark theme token compliance.
-  - Complete Dark Mode Ecosystem: Tailwind CSS v4 `@custom-variant dark (&:where(.dark, .dark *));`, `:root` & `.dark` CSS variables, persistent `localStorage('aura_theme')` with cross-tab sync, dynamic mobile `<meta name="theme-color">` (`#121214` dark, `#FBF9F5` light), 0ms anti-FOUC blocking script in `<head>`.
-  - Comprehensive View Coverage: All 18 guest UI components (Header, ThemeToggle, LanguageSwitcher, WeatherBanner, SearchBar, CategoryNav, DishCards, DishDetailModal, CartDrawer, OrderTrackerModal, WaiterCallModal, FloatingCartBar, AiSommelierModal, FiscalReceiptModal, SplitBillModal) + all 9 staff admin tabs (KDS, Calls, Stop-list, QR, Analytics, KKM, POS/Printers, Reviews/2GIS, Menu Management) + PinPadLockScreen.
+    - Guest Consumption Breakdown ("На сколько поел"): displays detailed list of consumed dishes per guest (with quantity, e.g. ×1 or ×½, and prices), dishes subtotal, 10% service charge, tip selector, and prominent total to transfer.
+    - 1-Click Fast Copy: instant copy of exact guest amount into clipboard with dynamic "Сумма скопирована ✓" feedback for quick pasting into MBANK / O!Dengi / Optima.
+    - Direct Cashier Transfer Widget: expandable drawer with Cashier ELQR/MBANK QR code tagged with table number, venue MBANK phone number (`+996 555 12-34-56`) with copy button, and clear payment instructions.
+    - "Перевёл кассиру ✓" Status: live tracking per guest with green state badge and table progress indicators.
+    - Mode 1 (Equal Split / Поровну): 2-10 guests stepper & quick pills, integer remainder distribution ensuring `sum(shares) === total` down to 1 som, per-person payment cards with 1-click copy and cashier QR.
+    - Mode 2 (Itemized Split / По позициям): Dynamic guest management (up to 8 guests), "½" fractional sharing button for teapots and shared appetizers, real-time unallocated sum tracker with visual badge ("Все блюда распределены!").
+    - Waiter & Staff Notification: 1-click "Попросить раздельный счет у официанта" button firing KDS waiter call with table context.
+    - Complete Dark Mode Ecosystem: Tailwind CSS v4 `@custom-variant dark (&:where(.dark, .dark *));`, `:root` & `.dark` CSS variables, persistent `localStorage('aura_theme')` with cross-tab sync.
   - Kyrgyz National Cuisine: Dedicated category `cat-national` with 16 authentic dishes, modifiers, trilingual metadata (RU/KG/EN), SW v2 image precache.
   - Context Splitting Architecture: Isolated `CartContext` & `KdsContext` under composite `MenuProvider`.
   - ServiceWorker v2.0 Image Precache: Curated 44 Unsplash dish photos precached during worker installation into `aura-smart-menu-images-v2.0.0`; instant 0ms offline image rendering.
@@ -31,7 +33,6 @@
   - Financial Data Privacy & Fiscal Guard: `GET /api/fiscal` restricted to managers; `GET /api/fiscal/[orderId]` strictly requires `paid` status.
   - POS Bridge & Hardware Isolation: `/api/pos/*` locked behind manager permissions; `/api/printer/print-ticket` requires staff auth.
   - Session Security: `aura_staff_token` cookie set with `httpOnly: true`.
-  - Network Headers: Production CSP, HSTS (`max-age=63072000; includeSubDomains; preload`), COOP (`same-origin`), and nosniff configured in `next.config.ts`.
 - **Live URLs:**
   - Guest Table: `https://smart-menu-nu.vercel.app/?table=4`
   - Staff / Admin Terminal: `https://smart-menu-nu.vercel.app/admin` (PINs: Manager `9999`, Kitchen `2222`, Waiter `1111`)
@@ -53,8 +54,8 @@
 - **[Unpaid-Order-Fiscalization]** `GET /api/fiscal/[orderId]` issued receipts for unpaid orders -> Enforced `status === 'paid'` precondition.
 
 ## 5. Rolling Changelog (Max 5)
-- `2026-11-24` Split Bill (Разделение счета) Module: Implemented dual-mode splitting (Equal Split with remainder integrity & Itemized Split with 1/2 portion sharing), personal ELQR/MBANK QR generation, paid toggles, trilingual support, and full dark theme integration.
+- `2026-11-24` Cashier Transfer & Consumption Breakdown: Enhanced Split Bill with itemized personal order list ("на сколько поел"), 1-click amount copy to clipboard, cashier QR widget with MBANK phone number, and "Перевёл кассиру ✓" tracking.
+- `2026-11-24` Split Bill Core Module: Implemented dual-mode splitting (Equal Split with remainder integrity & Itemized Split with 1/2 portion sharing), personal ELQR/MBANK QR generation, paid toggles, trilingual support, and full dark theme integration.
 - `2026-11-23` Comprehensive Dark Mode: Implemented ThemeContext, ThemeToggle, anti-FOUC script, Tailwind v4 @custom-variant, complete dark styling for all 17 guest components and all 9 admin tabs.
 - `2026-11-23` Kyrgyz National Cuisine Expansion: Added `cat-national` with Flame icon & 16 top-priority authentic dishes, modifiers, trilingual metadata (RU/KG/EN), SW offline precaching.
 - `2026-11-23` Context Splitting & SW v2.0: Decomposed `CartContext` & `KdsContext`, implemented Unsplash install precaching for offline basement dining.
-- `2026-11-23` Deployed OWASP API Security Hardening: KDS RBAC, table isolation on orders/calls, POS & printer protection, fiscal integrity guard, CSP/HSTS headers, httpOnly cookies, AI rate limits.
