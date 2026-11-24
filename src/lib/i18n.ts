@@ -147,6 +147,23 @@ export interface Translations {
   // Фискальный чек
   readonly fiscalReceiptTitle: string;
   readonly fiscalSalykNotice: string;
+
+  // Сплит счета
+  readonly splitBillTitle: string;
+  readonly splitBillSubtitle: string;
+  readonly splitModeEqual: string;
+  readonly splitModeByItems: string;
+  readonly splitGuestsCount: string;
+  readonly splitPerPerson: string;
+  readonly splitAllPaid: string;
+  readonly splitPayShare: string;
+  readonly splitByItemsDesc: string;
+  readonly splitUnallocated: string;
+  readonly splitAllAllocated: string;
+  readonly splitMyShare: string;
+  readonly splitAskWaiterBill: string;
+  readonly splitServiceFeeNotice: string;
+  readonly splitShareHalf: string;
 }
 
 export const DICTIONARY: Record<Language, Translations> = {
@@ -283,6 +300,22 @@ export const DICTIONARY: Record<Language, Translations> = {
 
     fiscalReceiptTitle: 'Электронный фискальный чек ЭККМ',
     fiscalSalykNotice: 'Зарегистрировано в ГНС при МФ КР (Salyk.kg)',
+
+    splitBillTitle: 'Разделение счета',
+    splitBillSubtitle: 'Оплачивайте компанией легко: поровну или только за свои блюда',
+    splitModeEqual: 'Поровну на всех',
+    splitModeByItems: 'По позициям (блюдам)',
+    splitGuestsCount: 'Количество гостей за столом',
+    splitPerPerson: 'С человека',
+    splitAllPaid: 'Все доли оплачены ✓',
+    splitPayShare: 'Оплатить мою долю',
+    splitByItemsDesc: 'Выберите гостя и укажите блюда, которые он заказывал',
+    splitUnallocated: 'Не распределено',
+    splitAllAllocated: 'Все позиции распределены ✓',
+    splitMyShare: 'Мой чек к оплате',
+    splitAskWaiterBill: 'Попросить раздельный счет у официанта',
+    splitServiceFeeNotice: 'Включая 10% за обслуживание',
+    splitShareHalf: '1/2 (пополам)',
   },
 
   kg: {
@@ -418,6 +451,22 @@ export const DICTIONARY: Record<Language, Translations> = {
 
     fiscalReceiptTitle: 'Электрондук фискалдык чек ЭККМ',
     fiscalSalykNotice: 'КР МКК Салык кызматында катталган (Salyk.kg)',
+
+    splitBillTitle: 'Эсепти бөлүү',
+    splitBillSubtitle: 'Компания менен оңой төлөңүз: тең же жеген тамактарыңыз үчүн гана',
+    splitModeEqual: 'Баарына тең бөлүү',
+    splitModeByItems: 'Тамактар боюнча',
+    splitGuestsCount: 'Үстөлдөгү коноктордун саны',
+    splitPerPerson: 'Бир адамга',
+    splitAllPaid: 'Бардык үлүштөр төлөндү ✓',
+    splitPayShare: 'Өз үлүшүмдү төлөө',
+    splitByItemsDesc: 'Конокту тандап, ал буйрутма берген тамактарды белгилеңиз',
+    splitUnallocated: 'Бөлүштүрүлө элек',
+    splitAllAllocated: 'Бардык тамактар бөлүштүрүлдү ✓',
+    splitMyShare: 'Менин төлөмүм',
+    splitAskWaiterBill: 'Официанттан өзүнчө эсеп суроо',
+    splitServiceFeeNotice: '10% тейлөө кызматы менен',
+    splitShareHalf: '1/2 (жарымы)',
   },
 
   en: {
@@ -553,6 +602,22 @@ export const DICTIONARY: Record<Language, Translations> = {
 
     fiscalReceiptTitle: 'Electronic Fiscal Receipt (EKKM)',
     fiscalSalykNotice: 'Officially registered with State Tax Service KR (Salyk.kg)',
+
+    splitBillTitle: 'Split the Bill',
+    splitBillSubtitle: 'Easy group payment: split equally or pay only for your items',
+    splitModeEqual: 'Split Equally',
+    splitModeByItems: 'By Dishes / Items',
+    splitGuestsCount: 'Number of Guests at Table',
+    splitPerPerson: 'Per person',
+    splitAllPaid: 'All shares paid ✓',
+    splitPayShare: 'Pay my share',
+    splitByItemsDesc: 'Select a guest and assign the items they ordered',
+    splitUnallocated: 'Unallocated',
+    splitAllAllocated: 'All items allocated ✓',
+    splitMyShare: 'My share to pay',
+    splitAskWaiterBill: 'Ask waiter for split bill',
+    splitServiceFeeNotice: 'Including 10% service fee',
+    splitShareHalf: '1/2 (half)',
   },
 };
 

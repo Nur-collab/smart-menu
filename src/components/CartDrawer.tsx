@@ -388,14 +388,26 @@ export function CartDrawer(): React.JSX.Element | null {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleCheckout}
-              className="w-full bg-[#B86B3E] hover:bg-[#A3592E] active:scale-95 text-white font-bold text-sm py-3.5 px-4 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <ChefHat className="w-4 h-4 stroke-[2.5]" />
-              <span>{t('sendToKitchen')}</span>
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveModal('split')}
+                className="flex-1 bg-white dark:bg-[#27272A] hover:bg-[#F4EBE3] dark:hover:bg-[#3F3F46] text-[#B86B3E] dark:text-[#E07A43] border border-[#E8DDD2] dark:border-[#3D3028] font-bold text-xs py-3.5 px-3 rounded-2xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                title={t('paySplit')}
+              >
+                <Users className="w-4 h-4" />
+                <span>{t('paySplit')}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCheckout}
+                className="flex-[1.5] bg-[#B86B3E] hover:bg-[#A3592E] active:scale-95 text-white font-bold text-sm py-3.5 px-4 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <ChefHat className="w-4 h-4 stroke-[2.5]" />
+                <span>{t('sendToKitchen')}</span>
+              </button>
+            </div>
           </div>
         )}
       </div>

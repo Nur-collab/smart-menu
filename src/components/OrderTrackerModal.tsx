@@ -15,6 +15,7 @@ import {
   Receipt,
   QrCode,
   CheckCircle2,
+  Users,
 } from 'lucide-react';
 import { getLocalizedName } from '@/lib/i18n';
 
@@ -243,17 +244,29 @@ export function OrderTrackerModal(): React.JSX.Element | null {
                 </div>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  callWaiter('bill');
-                  setBillRequested(true);
-                }}
-                className="w-full bg-[#B86B3E] hover:bg-[#A3592E] active:scale-95 text-white text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-              >
-                <Receipt className="w-4 h-4" />
-                <span>{t('requestBill')} (ELQR / MBANK / Карта)</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveModal('split')}
+                  className="flex-1 bg-white dark:bg-[#1C1C1F] hover:bg-[#F4EBE3] dark:hover:bg-[#27272A] text-[#B86B3E] dark:text-[#E07A43] border border-[#E8DDD2] dark:border-[#3D3028] text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                  title={t('splitBillTitle')}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>{t('splitBillTitle')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    callWaiter('bill');
+                    setBillRequested(true);
+                  }}
+                  className="flex-[1.5] bg-[#B86B3E] hover:bg-[#A3592E] active:scale-95 text-white text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                >
+                  <Receipt className="w-4 h-4" />
+                  <span>{t('requestBill')}</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
